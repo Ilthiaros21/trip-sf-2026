@@ -1,0 +1,1164 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SF Bay Area — Raúl &amp; Pao</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: oklch(0.12 0.016 55);
+    --bg-elevated: oklch(0.18 0.022 55);
+    --surface: oklch(0.21 0.026 55);
+    --surface-solid: oklch(0.205 0.026 55);
+    --border: oklch(0.32 0.03 55 / 0.5);
+    --border-strong: oklch(0.42 0.035 55 / 0.7);
+    --hairline: oklch(0.96 0.01 70 / 0.08);
+    --text: oklch(0.96 0.01 70);
+    --text-dim: oklch(0.72 0.02 65);
+    --text-faint: oklch(0.55 0.02 60);
+    --accent: oklch(0.78 0.14 70);
+    --accent-strong: oklch(0.82 0.16 68);
+    --accent-ink: oklch(0.2 0.05 65);
+    --confirmed: oklch(0.72 0.11 165);
+    --pending: oklch(0.78 0.13 80);
+    --danger: oklch(0.68 0.18 25);
+
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 12px;
+    --space-lg: 16px;
+    --space-xl: 24px;
+    --space-2xl: 32px;
+    --space-3xl: 48px;
+
+    --radius-shell: 28px;
+    --radius-lg: 20px;
+    --radius-md: 16px;
+    --radius-sm: 12px;
+
+    --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-display: "Bricolage Grotesque", -apple-system, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+    --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+
+  html {
+    background: var(--bg);
+    height: -webkit-fill-available;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    min-height: 100dvh;
+    -webkit-tap-highlight-color: transparent;
+    overflow-x: hidden;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Ethereal Glass vibe — deep ground, warm glow orbs, static (no motion cost) */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(900px 500px at 12% -8%, oklch(0.4 0.1 65 / 0.5), transparent 58%),
+      radial-gradient(700px 460px at 105% 4%, oklch(0.35 0.09 45 / 0.4), transparent 55%),
+      radial-gradient(600px 700px at 50% 120%, oklch(0.3 0.07 70 / 0.28), transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header.topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    padding: calc(var(--space-xl) + env(safe-area-inset-top)) var(--space-lg) var(--space-md);
+    background: color-mix(in oklch, var(--bg) 78%, transparent);
+  }
+  @supports (backdrop-filter: blur(1px)) {
+    header.topbar { backdrop-filter: blur(28px) saturate(160%); }
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--accent-strong);
+    background: color-mix(in oklch, var(--accent) 14%, transparent);
+    border: 1px solid color-mix(in oklch, var(--accent) 30%, transparent);
+    border-radius: 999px;
+    padding: 4px 11px 4px 9px;
+    margin-bottom: var(--space-md);
+  }
+  .eyebrow::before {
+    content: "";
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--confirmed);
+    flex: 0 0 auto;
+  }
+
+  .trip-title {
+    font-family: var(--font-display);
+    font-size: 1.9rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+    margin: 0 0 3px;
+  }
+  .trip-sub {
+    font-size: 0.875rem;
+    color: var(--text-dim);
+    margin: 0;
+  }
+
+  /* Fluid island nav — detached floating glass pill, not edge-to-edge */
+  .tabs-island-wrap {
+    position: sticky;
+    top: 0;
+    z-index: 19;
+    padding: var(--space-sm) var(--space-lg) var(--space-lg);
+  }
+  nav.tabs {
+    display: flex;
+    gap: var(--space-xs);
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 6px;
+    border-radius: 999px;
+    border: 1px solid var(--hairline);
+    background: color-mix(in oklch, var(--bg-elevated) 72%, transparent);
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    box-shadow: 0 8px 30px -12px oklch(0 0 0 / 0.5), inset 0 1px 0 var(--hairline);
+  }
+  @supports (backdrop-filter: blur(1px)) {
+    nav.tabs { backdrop-filter: blur(22px) saturate(150%); }
+  }
+  nav.tabs::-webkit-scrollbar { display: none; }
+
+  .tab-btn {
+    flex: 0 0 auto;
+    min-height: 44px;
+    padding: 0 var(--space-lg);
+    border-radius: 999px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-dim);
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.3s var(--ease-spring), color 0.3s var(--ease-spring), transform 0.3s var(--ease-spring);
+  }
+  .tab-btn:active { transform: scale(0.96); }
+  .tab-btn[aria-selected="true"] {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-ink);
+    box-shadow: 0 4px 14px -4px color-mix(in oklch, var(--accent) 60%, transparent);
+  }
+  .tab-btn:focus-visible {
+    outline: 2px solid var(--accent-strong);
+    outline-offset: 2px;
+  }
+
+  main {
+    position: relative;
+    z-index: 1;
+    padding: 0 var(--space-lg) calc(var(--space-3xl) + env(safe-area-inset-bottom));
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  section.day-panel { display: none; }
+  section.day-panel[data-active="true"] { display: block; }
+
+  .day-heading {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+    margin: var(--space-2xl) 0 var(--space-md);
+  }
+  .day-heading:first-child { margin-top: var(--space-lg); }
+
+  .day-note {
+    font-size: 0.85rem;
+    color: var(--text-faint);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-md);
+    margin-bottom: var(--space-lg);
+    line-height: 1.5;
+  }
+
+  /* timeline */
+  .timeline {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    position: relative;
+  }
+
+  .block {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    gap: var(--space-md);
+    position: relative;
+  }
+
+  .block-time-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: var(--space-xs);
+  }
+  .block-time {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-align: center;
+    line-height: 1.2;
+  }
+  .block-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--confirmed);
+    margin-top: var(--space-sm);
+    flex: 0 0 auto;
+  }
+  .block[data-status="pending"] .block-dot {
+    background: transparent;
+    border: 2px solid var(--pending);
+  }
+  .block-line {
+    width: 1px;
+    flex: 1;
+    background: var(--border);
+    margin-top: var(--space-sm);
+  }
+  .block:last-child .block-line { display: none; }
+
+  /* Double-bezel: outer machined shell + inner glass core */
+  .bezel-shell {
+    background: color-mix(in oklch, var(--bg-elevated) 55%, transparent);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-shell);
+    padding: 5px;
+  }
+  .block[data-status="pending"] .bezel-shell {
+    border-color: color-mix(in oklch, var(--pending) 35%, transparent);
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: inset 0 1px 0 var(--hairline);
+    overflow: hidden;
+  }
+  @supports (backdrop-filter: blur(1px)) {
+    .card { backdrop-filter: blur(18px); }
+  }
+  .block[data-status="pending"] .card {
+    border-style: dashed;
+    border-color: var(--pending);
+    background: color-mix(in oklch, var(--pending) 6%, var(--surface));
+  }
+
+  .card-head {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    padding: var(--space-lg);
+    background: none;
+    border: none;
+    color: inherit;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    min-height: 44px;
+    transition: transform 0.3s var(--ease-spring);
+  }
+  .card-head:active { transform: scale(0.99); }
+  .card-head:focus-visible {
+    outline: 2px solid var(--accent-strong);
+    outline-offset: -2px;
+  }
+
+  .card-title-group { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .card-title {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .card-location {
+    font-size: 0.8rem;
+    color: var(--text-faint);
+  }
+  .card-desc {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    margin-top: 2px;
+    line-height: 1.45;
+  }
+
+  .status-pill {
+    flex: 0 0 auto;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: color-mix(in oklch, var(--confirmed) 20%, transparent);
+    color: var(--confirmed);
+    white-space: nowrap;
+  }
+  .block[data-status="pending"] .status-pill {
+    background: color-mix(in oklch, var(--pending) 22%, transparent);
+    color: var(--pending);
+  }
+
+  /* button-in-button: chevron nested in its own pill, never bare */
+  .chevron-wrap {
+    flex: 0 0 auto;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--bg-elevated);
+    border: 1px solid var(--hairline);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s var(--ease-spring), background 0.3s var(--ease-spring);
+  }
+  .card-head:hover .chevron-wrap { background: color-mix(in oklch, var(--accent) 16%, var(--bg-elevated)); }
+  .chevron {
+    width: 16px;
+    height: 16px;
+    color: var(--text-dim);
+    transition: transform 0.35s var(--ease-spring);
+  }
+  .card[data-open="true"] .chevron { transform: rotate(180deg); }
+
+  .card-body-wrap {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.4s var(--ease-spring);
+  }
+  .card[data-open="true"] .card-body-wrap { grid-template-rows: 1fr; }
+  .card-body-inner { overflow: hidden; }
+  .card-body {
+    padding: 0 var(--space-lg) var(--space-lg);
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    line-height: 1.55;
+    border-top: 1px solid var(--hairline);
+    margin-top: var(--space-sm);
+    padding-top: var(--space-md);
+  }
+  .card-body p { margin: 0 0 var(--space-sm); }
+  .card-body p:last-child { margin-bottom: 0; }
+
+  .badge-warn {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--danger);
+    background: color-mix(in oklch, var(--danger) 16%, transparent);
+    border-radius: 6px;
+    padding: 2px 8px;
+    margin-bottom: var(--space-sm);
+  }
+
+  /* food options widget */
+  .food-options {
+    margin-top: var(--space-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+  .food-options-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-faint);
+  }
+  .food-opt {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    background: var(--bg-elevated);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-sm);
+    padding: var(--space-sm) var(--space-md);
+  }
+  .food-opt-name { font-size: 0.85rem; font-weight: 600; }
+  .food-opt-desc { font-size: 0.76rem; color: var(--text-faint); margin-top: 1px; }
+  .food-tag {
+    flex: 0 0 auto;
+    font-size: 0.66rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 3px 8px;
+    border-radius: 999px;
+  }
+  .food-tag[data-kind="walk"] {
+    background: color-mix(in oklch, var(--confirmed) 18%, transparent);
+    color: var(--confirmed);
+  }
+  .food-tag[data-kind="move"] {
+    background: color-mix(in oklch, var(--accent) 22%, transparent);
+    color: var(--accent-strong);
+  }
+
+  /* pretrip checklist — also rides the double-bezel shell */
+  .pretrip-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: inset 0 1px 0 var(--hairline);
+    padding: var(--space-lg);
+  }
+  @supports (backdrop-filter: blur(1px)) {
+    .pretrip-item { backdrop-filter: blur(18px); }
+  }
+  .pretrip-when {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .pretrip-tasks { margin: var(--space-sm) 0 0; padding-left: 1.1em; font-size: 0.88rem; color: var(--text); line-height: 1.6; }
+  .pretrip-tasks li { margin-bottom: 2px; }
+
+  /* summary tab */
+  .summary-grid { display: flex; flex-direction: column; gap: var(--space-xl); }
+  .summary-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: inset 0 1px 0 var(--hairline);
+    padding: var(--space-xl) var(--space-lg);
+  }
+  @supports (backdrop-filter: blur(1px)) {
+    .summary-card { backdrop-filter: blur(18px); }
+  }
+  .summary-card h2 {
+    font-family: var(--font-mono);
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent-strong);
+    background: color-mix(in oklch, var(--accent) 14%, transparent);
+    border: 1px solid color-mix(in oklch, var(--accent) 28%, transparent);
+    border-radius: 999px;
+    padding: 4px 11px;
+    margin: 0 0 var(--space-lg);
+  }
+  .summary-row {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: var(--space-sm) 0;
+    border-top: 1px solid var(--hairline);
+  }
+  .summary-row:first-of-type { border-top: none; }
+  .summary-row-label {
+    color: var(--text-faint);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .summary-row-value { font-size: 0.9rem; font-weight: 600; line-height: 1.4; }
+  .summary-row-value.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 0.86rem; }
+
+  .allergy-card {
+    background: color-mix(in oklch, var(--danger) 12%, var(--surface));
+    border: 1px solid color-mix(in oklch, var(--danger) 45%, var(--border));
+  }
+  .allergy-card h2 {
+    color: var(--danger);
+    background: color-mix(in oklch, var(--danger) 18%, transparent);
+    border-color: color-mix(in oklch, var(--danger) 40%, transparent);
+  }
+  .allergy-card p { margin: 0; font-size: 0.9rem; line-height: 1.5; }
+
+  .pill-list { display: flex; flex-wrap: wrap; gap: var(--space-sm); }
+  .pill {
+    font-size: 0.8rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--hairline);
+    border-radius: 999px;
+    padding: 5px 12px;
+  }
+
+  .hotel-options { display: flex; flex-direction: column; gap: var(--space-sm); }
+  .hotel-opt {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-sm);
+    background: var(--bg-elevated);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-sm);
+    padding: var(--space-sm) var(--space-md);
+    font-size: 0.85rem;
+  }
+  .hotel-opt[data-picked="true"] {
+    border-color: var(--accent);
+    background: color-mix(in oklch, var(--accent) 10%, var(--bg-elevated));
+  }
+  .hotel-name { font-weight: 600; }
+  .hotel-price { color: var(--text-faint); font-size: 0.78rem; }
+
+  footer.credits {
+    text-align: center;
+    color: var(--text-faint);
+    font-size: 0.72rem;
+    padding: var(--space-xl) 0 var(--space-lg);
+  }
+
+  /* Scroll/tab-entry choreography — one entrance per panel activation, GPU-safe (transform+opacity+blur only) */
+  @keyframes riseIn {
+    from { opacity: 0; transform: translateY(14px); filter: blur(4px); }
+    to   { opacity: 1; transform: translateY(0);     filter: blur(0); }
+  }
+  .day-panel[data-active="true"] > * {
+    animation: riseIn 0.6s var(--ease-spring) both;
+  }
+  .day-panel[data-active="true"] > .day-heading { animation-delay: 0s; }
+  .day-panel[data-active="true"] > .day-note { animation-delay: 0.04s; }
+  .day-panel[data-active="true"] .timeline > * { animation: riseIn 0.55s var(--ease-spring) both; }
+  .day-panel[data-active="true"] .timeline > *:nth-child(1) { animation-delay: 0.05s; }
+  .day-panel[data-active="true"] .timeline > *:nth-child(2) { animation-delay: 0.1s; }
+  .day-panel[data-active="true"] .timeline > *:nth-child(3) { animation-delay: 0.15s; }
+  .day-panel[data-active="true"] .timeline > *:nth-child(4) { animation-delay: 0.2s; }
+  .day-panel[data-active="true"] .timeline > *:nth-child(5) { animation-delay: 0.25s; }
+  .day-panel[data-active="true"] .timeline > *:nth-child(6) { animation-delay: 0.3s; }
+  .day-panel[data-active="true"] .summary-grid > * { animation: riseIn 0.55s var(--ease-spring) both; }
+  .day-panel[data-active="true"] .summary-grid > *:nth-child(1) { animation-delay: 0.04s; }
+  .day-panel[data-active="true"] .summary-grid > *:nth-child(2) { animation-delay: 0.09s; }
+  .day-panel[data-active="true"] .summary-grid > *:nth-child(3) { animation-delay: 0.14s; }
+  .day-panel[data-active="true"] .summary-grid > *:nth-child(4) { animation-delay: 0.19s; }
+  .day-panel[data-active="true"] .summary-grid > *:nth-child(n+5) { animation-delay: 0.24s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card-body-wrap, .chevron, .tab-btn, .card-head, .day-panel[data-active="true"] > *, .day-panel[data-active="true"] .timeline > *, .day-panel[data-active="true"] .summary-grid > * {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+
+  @media (min-width: 720px) {
+    main { max-width: 760px; }
+    /* Asymmetrical bento — only where content actually varies in weight; single column below this breakpoint */
+    #panel-summary .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-xl);
+    }
+    #panel-summary .summary-grid > *:nth-child(1) { grid-column: span 4; }
+    #panel-summary .summary-grid > *:nth-child(2) { grid-column: span 2; }
+    #panel-summary .summary-grid > *:nth-child(3) { grid-column: span 2; }
+    #panel-summary .summary-grid > *:nth-child(4) { grid-column: span 2; }
+    #panel-summary .summary-grid > *:nth-child(5) { grid-column: span 2; }
+    #panel-summary .summary-grid > *:nth-child(6) { grid-column: span 2; }
+    #panel-summary .summary-grid > *:nth-child(7) { grid-column: span 4; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <span class="eyebrow">Viaje · Solo lectura</span>
+  <p class="trip-title">SF Bay Area</p>
+  <p class="trip-sub">Raúl &amp; Pao · 25 sept – 1 oct 2026</p>
+</header>
+
+<div class="tabs-island-wrap">
+  <nav class="tabs" role="tablist" aria-label="Días del viaje" id="tabs"></nav>
+</div>
+
+<main id="panels"></main>
+
+<footer class="credits">Referencia de solo lectura · actualizar regenerando el archivo</footer>
+
+<script>
+"use strict";
+
+function deepFreeze(obj) {
+  Object.getOwnPropertyNames(obj).forEach(function (key) {
+    var val = obj[key];
+    if (val && typeof val === "object") deepFreeze(val);
+  });
+  return Object.freeze(obj);
+}
+
+// ---------------------------------------------------------------
+// FIXED_DATA — datos confirmados de logística dura. NO EDITAR estos
+// valores salvo que el dato real cambie (ej. reasignan asiento).
+// Congelado a propósito: un typo aquí es un vuelo perdido, no un bug de UI.
+// ---------------------------------------------------------------
+const FIXED_DATA = deepFreeze({
+  flights: {
+    outbound: {
+      airline: "Aeroméxico",
+      date: "Vie 25 sept 2026",
+      route: "MEX → SFO",
+      depart: "17:20",
+      arrive: "21:10",
+      duration: "~4h29m",
+      kind: "Directo",
+      seats: "24B / 24C"
+    },
+    returnRaul: {
+      leg1: { route: "SFO → LAX", airline: "Delta (aerolínea por confirmar)", date: "Mar 29 sept 2026", depart: "14:30", seat: "Por confirmar" },
+      leg2: { route: "LAX → MEX", seat: "21C" }
+    }
+  },
+  game: {
+    matchup: "49ers vs Cardinals",
+    date: "Dom 27 sept 2026",
+    time: "1:05 pm",
+    venue: "Levi's Stadium",
+    section: "301",
+    row: "1",
+    seats: "20–21",
+    vendor: "Ticketmaster Verified Resale",
+    pricePerTicket: "$200 USD/boleto",
+    note: "Esquina suroeste, nivel 300, lado con sombra"
+  },
+  transfers: {
+    airportToHotel: "Mountain View ↔ SFO, ~35–45 min en auto/Uber",
+    tuesdayBuffer: "Salir con 2h de margen antes del vuelo de Raúl"
+  }
+});
+
+// ---------------------------------------------------------------
+// TRIP_DATA — resto del itinerario, editable conforme se confirmen cosas.
+// ---------------------------------------------------------------
+const REQUIRED_BLOCK_FIELDS = ["time", "title", "status"];
+
+function validateTripData(data) {
+  const errors = [];
+  if (!Array.isArray(data.pretrip)) errors.push("pretrip debe ser un array");
+  if (!Array.isArray(data.days)) errors.push("days debe ser un array");
+  (data.days || []).forEach(function (day, i) {
+    if (!day.key || !day.tab || !day.heading) errors.push("days[" + i + "] falta key/tab/heading");
+    if (!Array.isArray(day.blocks)) { errors.push("days[" + i + "] falta blocks[]"); return; }
+    day.blocks.forEach(function (block, j) {
+      REQUIRED_BLOCK_FIELDS.forEach(function (field) {
+        if (!block[field]) errors.push("days[" + i + "].blocks[" + j + "] falta '" + field + "'");
+      });
+      if (block.status !== "confirmed" && block.status !== "pending") {
+        errors.push("days[" + i + "].blocks[" + j + "] status inválido: " + block.status);
+      }
+    });
+  });
+  if (errors.length) {
+    console.error("TRIP_DATA inválido:\n- " + errors.join("\n- "));
+  }
+  return errors.length === 0;
+}
+
+const TRIP_DATA = {
+  pretrip: [
+    { when: "Cuanto antes", tasks: ["Cerrar reservación del hotel (Aloft Mountain View) — mientras antes, mejor precio y disponibilidad"] },
+    { when: "Cuanto antes / cuando Pao tenga info", tasks: ["Confirmar vuelo de regreso de Pao (vía empresa)"] },
+    { when: "Cuando se pueda", tasks: ["Confirmar con Delta el tramo SFO→LAX (aerolínea y asiento)"] },
+    { when: "~22–23 sept (2–3 días antes)", tasks: [
+      "Reservar transporte SFO → Mountain View (Uber Reserve — precio fijo, coche garantizado)",
+      "Cambiar ~$100–150 USD en efectivo en un banco en México (mejor tipo de cambio que el aeropuerto)",
+      "Agregar Clipper card a Apple Wallet / Google Wallet"
+    ]}
+  ],
+
+  days: [
+    {
+      key: "vie25", tab: "Vie 25", heading: "Viernes 25 sept",
+      blocks: [
+        {
+          time: "21:10", title: "Llegada a SFO", status: "confirmed",
+          desc: "Aeroméxico directo desde MEX.",
+          notes: "Recoger equipaje (1 documentada + 1 carry-on compartidas) y salir directo a transporte reservado."
+        },
+        {
+          time: "~22:00", title: "Traslado a Mountain View", status: "confirmed", location: "SFO → Aloft Mountain View",
+          desc: "35–45 min en auto/Uber (reservado con anticipación).",
+          notes: "Dirección del hotel: 840 East El Camino Real, Mountain View, CA 94040."
+        },
+        {
+          time: "Noche", title: "Check-in y cena ligera", status: "pending",
+          desc: "Asentarse, cena cerca del hotel si hay hambre.",
+          notes: "No forzar nada — llegan cansados de un vuelo largo.",
+          food: {
+            label: "Cena en Mountain View (Castro St, ~10–15 min del hotel)",
+            options: [
+              { name: "Zareen's", tag: "walk", desc: "Pakistaní/Indio fusión — casual $15–25" },
+              { name: "Cascal", tag: "walk", desc: "Tapas España/Latam — casual-medio" },
+              { name: "NAR Restaurant", tag: "move", desc: "Cocina del Cáucaso Sur — mesa buena, distinto a todo" }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      key: "sab26", tab: "Sáb 26", heading: "Sábado 26 sept — San Francisco",
+      note: "Día completo en SF vía Caltrain. Concierto en Shoreline Amphitheatre esta noche — puede haber más tráfico al volver a Mountain View.",
+      blocks: [
+        {
+          time: "Mañana", title: "Caltrain a San Francisco", status: "confirmed",
+          desc: "Salida desde Mountain View."
+        },
+        {
+          time: "3–4h", title: "California Academy of Sciences", status: "confirmed", location: "Golden Gate Park",
+          desc: "Acuario, planetario, selva tropical.",
+          notes: "Reservar boleto de planetario al llegar, vía QR en el lobby.",
+          food: {
+            label: "Comida cerca (Irving St, ~10 min caminando)",
+            options: [
+              { name: "Hook Fish", tag: "walk", desc: "Mariscos — casual" },
+              { name: "Pacific Catch", tag: "walk", desc: "Mariscos/sushi — casual" },
+              { name: "Beach Chalet", tag: "move", desc: "Vista al mar, mejor ambiente — ~20 min o Uber corto" }
+            ]
+          }
+        },
+        {
+          time: "Tarde", title: "Actividad / tiendas — por definir", status: "pending",
+          desc: "Opciones sobre la mesa: Ferry Building, Golden Gate/Crissy Field, Mission District, Dolores Park, Castro, Twin Peaks, Union Square.",
+          notes: "No conviene regresar a Mountain View a comer este día — se pierde 1h+ de Caltrain ida-vuelta. Resolver comida en SF mismo."
+        },
+        {
+          time: "Tarde", title: "Comprar jersey/merch 49ers", status: "confirmed", location: "Team Store, Westfield SF (Market & Powell)",
+          desc: "Hacerlo hoy evita líneas el día del partido."
+        },
+        {
+          time: "Noche", title: "Cena y regreso a Mountain View", status: "pending",
+          desc: "Ojo con tráfico extra por el concierto en Shoreline."
+        }
+      ]
+    },
+    {
+      key: "dom27", tab: "Dom 27", heading: "Domingo 27 sept — Día de partido",
+      blocks: [
+        {
+          time: "Mañana", title: "Desayuno completo en Mountain View", status: "confirmed",
+          desc: "No en San José — desayunar antes de salir."
+        },
+        {
+          time: "Media mañana", title: "Caltrain a Santa Clara / Levi's Stadium", status: "confirmed"
+        },
+        {
+          time: "1:05 pm", title: "49ers vs Cardinals", status: "confirmed", location: "Levi's Stadium",
+          desc: "Sección 301, Fila 1, asientos 20–21. Esquina suroeste, nivel 300, lado con sombra.",
+          notes: "Boletos comprados — Ticketmaster Verified Resale, $200 USD/boleto.",
+          warn: "Bag policy: bolsa clara máx 12\"×6\"×12\", o clutch NO clara máx 4.5\"×6.5\". Nada de bolsas normales ni mochilas — la Coach de Pao se queda en el hotel."
+        },
+        {
+          time: "Post-partido", title: "Caminar de regreso a la estación", status: "confirmed"
+        },
+        {
+          time: "Tarde", title: "Comida en San José", status: "pending", location: "Santana Row",
+          desc: "Está de camino — no hace falta desviarse ni forzar volver a Mountain View con hambre.",
+          food: {
+            label: "Opciones en Santana Row",
+            options: [
+              { name: "Urban Plates", tag: "walk", desc: "Casual, rápido, saludable" },
+              { name: "Oveja Negra", tag: "walk", desc: "Tapas españolas" },
+              { name: "Fogo de Chao / Maggiano's", tag: "move", desc: "Brasileña o ítalo-americana — splurge post-juego" }
+            ]
+          }
+        },
+        {
+          time: "Noche", title: "Regreso a Mountain View", status: "confirmed"
+        }
+      ]
+    },
+    {
+      key: "lun28", tab: "Lun 28", heading: "Lunes 28 sept — Día libre",
+      note: "Pao tomó el día — ambos libres.",
+      blocks: [
+        {
+          time: "10am–5pm", title: "SFMOMA", status: "confirmed", location: "San Francisco",
+          desc: "Cerrado martes–miércoles, hoy sí abre.",
+          food: {
+            label: "Comida cerca (Yerba Buena)",
+            options: [
+              { name: "Delarosa", tag: "walk", desc: "Italiano / pizza romana — a pasos del museo" },
+              { name: "Tropisueño", tag: "walk", desc: "Mexicano — cerca de Moscone" },
+              { name: "The Cavalier", tag: "move", desc: "Gastropub británico — mesa buena/especial" }
+            ]
+          }
+        },
+        {
+          time: "Tarde", title: "Segunda actividad en SF — por definir", status: "pending",
+          desc: "Algo que no se haya cubierto el sábado.",
+          notes: "No conviene regresar a Mountain View a mitad de tarde — resolver en SF, volver ya para la cena."
+        },
+        {
+          time: "Noche", title: "Cena con Vaish y su esposo", status: "pending", location: "Mountain View",
+          desc: "Compañera de trabajo de Pao.",
+          notes: "Hora y lugar exacto sin definir aún. Confirmado que es en Mountain View, salvo que cambie el plan."
+        }
+      ]
+    },
+    {
+      key: "mar29", tab: "Mar 29", heading: "Martes 29 sept — Regreso de Raúl",
+      blocks: [
+        {
+          time: "Mañana", title: "Mañana libre", status: "confirmed"
+        },
+        {
+          time: "Antes de 12:30", title: "Traslado a SFO", status: "confirmed", location: "Mountain View → SFO",
+          desc: "35–45 min. Salir con 2h de margen antes del vuelo."
+        },
+        {
+          time: "14:30", title: "Vuelo de Raúl: SFO → LAX → MEX", status: "confirmed",
+          desc: "Escala en LAX. Tramo SFO–LAX pendiente confirmar con Delta.",
+          notes: "Asiento LAX→MEX: 21C."
+        }
+      ]
+    },
+    {
+      key: "mie30", tab: "Mié 30", heading: "Miércoles 30 sept — Pao sola",
+      note: "Raúl ya se fue. Espacio reservado para lo que Pao decida hacer estos días — pendiente de confirmar con ella.",
+      blocks: [
+        { time: "Todo el día", title: "Por definir", status: "pending", desc: "Sin actividades asignadas todavía." }
+      ]
+    },
+    {
+      key: "jue1", tab: "Jue 1", heading: "Jueves 1 oct — Pao sola, día de salida",
+      blocks: [
+        { time: "Por definir", title: "Actividad / salida", status: "pending", desc: "Checar horario de vuelo de Pao cuando se confirme." }
+      ]
+    }
+  ]
+};
+
+// ---------------------------------------------------------------
+// Render
+// ---------------------------------------------------------------
+
+function el(tag, attrs, children) {
+  const node = document.createElement(tag);
+  if (attrs) {
+    for (const k in attrs) {
+      if (k === "class") node.className = attrs[k];
+      else if (k === "html") node.innerHTML = attrs[k];
+      else node.setAttribute(k, attrs[k]);
+    }
+  }
+  (children || []).forEach(function (c) {
+    if (c) node.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+  });
+  return node;
+}
+
+function chevronSvg() {
+  const chevron = document.createElement("span");
+  chevron.className = "chevron";
+  chevron.innerHTML = '<svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16"><path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const wrap = document.createElement("span");
+  wrap.className = "chevron-wrap";
+  wrap.appendChild(chevron);
+  return wrap;
+}
+
+// Double-bezel: outer machined shell wrapping an inner glass core.
+function shell(coreNode) {
+  return el("div", { class: "bezel-shell" }, [coreNode]);
+}
+
+function renderFoodOptions(food) {
+  const wrap = el("div", { class: "food-options" }, [
+    el("div", { class: "food-options-label" }, [food.label])
+  ]);
+  food.options.forEach(function (opt) {
+    wrap.appendChild(el("div", { class: "food-opt" }, [
+      el("div", null, [
+        el("div", { class: "food-opt-name" }, [opt.name]),
+        el("div", { class: "food-opt-desc" }, [opt.desc])
+      ]),
+      el("span", { class: "food-tag", "data-kind": opt.tag }, [opt.tag === "walk" ? "Walkable" : "Vale la pena"])
+    ]));
+  });
+  return wrap;
+}
+
+function renderBlock(block) {
+  const status = block.status === "pending" ? "pending" : "confirmed";
+  const hasBody = block.notes || block.food || block.warn;
+
+  const titleGroup = el("div", { class: "card-title-group" }, [
+    el("div", { class: "card-title" }, [block.title]),
+    block.location ? el("div", { class: "card-location" }, [block.location]) : null,
+    block.desc ? el("div", { class: "card-desc" }, [block.desc]) : null
+  ]);
+
+  const pill = el("span", { class: "status-pill" }, [status === "pending" ? "Por confirmar" : "Confirmado"]);
+
+  const headRight = el("div", { style: "display:flex;align-items:center;gap:8px;flex:0 0 auto;" }, [pill]);
+  if (hasBody) headRight.appendChild(chevronSvg());
+
+  const head = el("button", { class: "card-head", type: "button", "aria-expanded": "false" }, [titleGroup, headRight]);
+
+  const card = el("div", { class: "card", "data-open": "false" }, [head]);
+
+  if (hasBody) {
+    const bodyContent = el("div", { class: "card-body" });
+    if (block.warn) {
+      bodyContent.appendChild(el("span", { class: "badge-warn" }, ["⚠ Importante"]));
+      bodyContent.appendChild(el("p", null, [block.warn]));
+    }
+    if (block.notes) bodyContent.appendChild(el("p", null, [block.notes]));
+    if (block.food) bodyContent.appendChild(renderFoodOptions(block.food));
+
+    const inner = el("div", { class: "card-body-inner" }, [bodyContent]);
+    const bodyWrap = el("div", { class: "card-body-wrap" }, [inner]);
+    card.appendChild(bodyWrap);
+  } else {
+    head.style.cursor = "default";
+  }
+
+  const dotCol = el("div", { class: "block-time-col" }, [
+    el("div", { class: "block-time" }, [block.time]),
+    el("div", { class: "block-dot" }),
+    el("div", { class: "block-line" })
+  ]);
+
+  return el("article", { class: "block", "data-status": status }, [dotCol, shell(card)]);
+}
+
+// Delegación: un solo listener por panel, no uno por tarjeta.
+function bindExpandDelegate(container) {
+  container.addEventListener("click", function (event) {
+    const head = event.target.closest(".card-head");
+    if (!head || !container.contains(head)) return;
+    const card = head.closest(".card");
+    if (!card || !card.querySelector(".card-body-wrap")) return;
+    const open = card.getAttribute("data-open") === "true";
+    card.setAttribute("data-open", open ? "false" : "true");
+    head.setAttribute("aria-expanded", open ? "false" : "true");
+  });
+}
+
+function renderDayPanel(day) {
+  const panel = el("section", { class: "day-panel", id: "panel-" + day.key, role: "tabpanel", "aria-labelledby": "tab-" + day.key });
+  panel.appendChild(el("h2", { class: "day-heading" }, [day.heading]));
+  if (day.note) panel.appendChild(el("p", { class: "day-note" }, [day.note]));
+  const timeline = el("div", { class: "timeline" });
+  day.blocks.forEach(function (b) { timeline.appendChild(renderBlock(b)); });
+  panel.appendChild(timeline);
+  return panel;
+}
+
+function renderPretripPanel() {
+  const panel = el("section", { class: "day-panel", id: "panel-pretrip", role: "tabpanel", "aria-labelledby": "tab-pretrip" });
+  panel.appendChild(el("h2", { class: "day-heading" }, ["Antes de viajar"]));
+  panel.appendChild(el("p", { class: "day-note" }, ["Checklist de referencia — no interactivo. Ir tachando fuera de la app."]));
+  const list = el("div", { class: "timeline" });
+  TRIP_DATA.pretrip.forEach(function (item) {
+    const tasks = el("ul", { class: "pretrip-tasks" }, item.tasks.map(function (t) { return el("li", null, [t]); }));
+    list.appendChild(shell(el("div", { class: "pretrip-item" }, [
+      el("div", { class: "pretrip-when" }, [item.when]),
+      tasks
+    ])));
+  });
+  panel.appendChild(list);
+  return panel;
+}
+
+function summaryRow(label, value, mono) {
+  return el("div", { class: "summary-row" }, [
+    el("span", { class: "summary-row-label" }, [label]),
+    el("span", { class: "summary-row-value" + (mono ? " mono" : "") }, [value])
+  ]);
+}
+
+function renderSummaryPanel() {
+  const panel = el("section", { class: "day-panel", id: "panel-summary", role: "tabpanel", "aria-labelledby": "tab-summary" });
+  panel.appendChild(el("h2", { class: "day-heading" }, ["Resumen del viaje"]));
+
+  const grid = el("div", { class: "summary-grid" });
+
+  // Allergy — siempre visible, no colapsable
+  grid.appendChild(shell(el("div", { class: "summary-card allergy-card" }, [
+    el("h2", null, ["⚠ Alergia"]),
+    el("p", null, ["Raúl es alérgico a almendras y nueces de Castilla (pistaches sí). Tenerlo presente al elegir cualquier restaurante."])
+  ])));
+
+  // Flights
+  const f = FIXED_DATA.flights;
+  grid.appendChild(shell(el("div", { class: "summary-card" }, [
+    el("h2", null, ["Vuelos"]),
+    summaryRow("Ida", f.outbound.route + " · " + f.outbound.date),
+    summaryRow("Horario", f.outbound.depart + " → " + f.outbound.arrive + " (" + f.outbound.duration + ")", true),
+    summaryRow("Asientos ida", f.outbound.seats, true),
+    summaryRow("Regreso Raúl", f.returnRaul.leg1.route + " → MEX"),
+    summaryRow("Salida SFO", f.returnRaul.leg1.date + " · " + f.returnRaul.leg1.depart, true),
+    summaryRow("Asiento LAX→MEX", f.returnRaul.leg2.seat, true),
+    summaryRow("Regreso Pao", "Pendiente — vía empresa")
+  ])));
+
+  // Game
+  const g = FIXED_DATA.game;
+  grid.appendChild(shell(el("div", { class: "summary-card" }, [
+    el("h2", null, ["Boletos del partido"]),
+    summaryRow("Partido", g.matchup),
+    summaryRow("Fecha", g.date + " · " + g.time),
+    summaryRow("Estadio", g.venue),
+    summaryRow("Asientos", "Sec " + g.section + " · Fila " + g.row + " · " + g.seats, true),
+    summaryRow("Precio", g.pricePerTicket),
+    summaryRow("Nota", g.note)
+  ])));
+
+  // Transfers
+  grid.appendChild(shell(el("div", { class: "summary-card" }, [
+    el("h2", null, ["Traslados"]),
+    summaryRow("Aeropuerto ↔ hotel", FIXED_DATA.transfers.airportToHotel),
+    summaryRow("Margen martes", FIXED_DATA.transfers.tuesdayBuffer)
+  ])));
+
+  // Hotel
+  grid.appendChild(shell(el("div", { class: "summary-card" }, [
+    el("h2", null, ["Hospedaje"]),
+    el("div", { class: "hotel-options" }, [
+      el("div", { class: "hotel-opt", "data-picked": "true" }, [
+        el("div", null, [
+          el("div", { class: "hotel-name" }, ["Aloft Mountain View — inclinación actual"]),
+          el("div", { class: "hotel-price" }, ["840 East El Camino Real, Mountain View, CA 94040 · $130–180/noche"])
+        ]),
+        el("span", { class: "status-pill" }, ["Por confirmar"])
+      ]),
+      el("div", { class: "hotel-opt" }, [
+        el("div", null, [
+          el("div", { class: "hotel-name" }, ["Hyatt Centric Mountain View"]),
+          el("div", { class: "hotel-price" }, ["$200–350/noche"])
+        ])
+      ]),
+      el("div", { class: "hotel-opt" }, [
+        el("div", null, [
+          el("div", { class: "hotel-name" }, ["Residence Inn Palo Alto/Mountain View"]),
+          el("div", { class: "hotel-price" }, ["$130–160/noche"])
+        ])
+      ])
+    ])
+  ])));
+
+  // Equipaje + presupuesto + cash
+  grid.appendChild(shell(el("div", { class: "summary-card" }, [
+    el("h2", null, ["Equipaje &amp; dinero"]),
+    summaryRow("Equipaje", "1 carry-on + 1 documentada (compartidas entre los dos)"),
+    summaryRow("Presupuesto total", "$25,000 USD (incluye todo)", true),
+    summaryRow("Estimado real", "~$3,500–4,800 USD para los dos", true),
+    summaryRow("Cash", "~$100–150 USD de colchón, resto tarjeta/Apple Pay"),
+    summaryRow("Transporte", "Default a Caltrain/caminar — Uber solo casos puntuales")
+  ])));
+
+  // Packing list
+  const packing = [
+    "3–4 playeras/blusas casuales", "1–2 outfits arreglados (cena con Vaish)",
+    "Jean/pants cómodo + short/pants ligero", "Chamarra ligera (SF con neblina)",
+    "Sudadera / capa media (noches ~13°C)", "Tenis cómodos para caminar mucho",
+    "Gorra y lentes de sol", "Algo rojo/dorado 49ers", "Protector solar",
+    "Botella de agua reutilizable transparente", "Power bank / cargador",
+    "Pao: bolsa clara o clutch chico ≤4.5\"×6.5\" para el día del partido"
+  ];
+  grid.appendChild(shell(el("div", { class: "summary-card" }, [
+    el("h2", null, ["Qué llevar"]),
+    el("p", { class: "card-desc", style: "margin-bottom:10px;" }, ["Clima fin de sept: SF fresco/neblina 18–21°C día, ~13°C noche. Mountain View más cálido y soleado, 26–29°C día."]),
+    el("div", { class: "pill-list" }, packing.map(function (p) { return el("span", { class: "pill" }, [p]); }))
+  ])));
+
+  panel.appendChild(grid);
+  return panel;
+}
+
+// ---------------------------------------------------------------
+// Boot
+// ---------------------------------------------------------------
+
+function boot() {
+  validateTripData(TRIP_DATA);
+
+  const tabsEl = document.getElementById("tabs");
+  const panelsEl = document.getElementById("panels");
+  bindExpandDelegate(panelsEl);
+
+  const tabDefs = [{ key: "pretrip", label: "Antes de viajar" }]
+    .concat(TRIP_DATA.days.map(function (d) { return { key: d.key, label: d.tab }; }))
+    .concat([{ key: "summary", label: "Resumen" }]);
+
+  panelsEl.appendChild(renderPretripPanel());
+  TRIP_DATA.days.forEach(function (d) { panelsEl.appendChild(renderDayPanel(d)); });
+  panelsEl.appendChild(renderSummaryPanel());
+
+  tabDefs.forEach(function (t, i) {
+    const btn = el("button", {
+      class: "tab-btn", type: "button", role: "tab",
+      id: "tab-" + t.key, "aria-controls": "panel-" + t.key,
+      "aria-selected": i === 1 ? "true" : "false"
+    }, [t.label]);
+    btn.addEventListener("click", function () { activate(t.key); });
+    tabsEl.appendChild(btn);
+  });
+
+  function activate(key) {
+    tabsEl.querySelectorAll(".tab-btn").forEach(function (b) {
+      b.setAttribute("aria-selected", b.id === "tab-" + key ? "true" : "false");
+    });
+    panelsEl.querySelectorAll(".day-panel").forEach(function (p) {
+      p.setAttribute("data-active", p.id === "panel-" + key ? "true" : "false");
+    });
+    const activeBtn = document.getElementById("tab-" + key);
+    if (activeBtn) activeBtn.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
+  }
+
+  activate(TRIP_DATA.days[0].key); // arranca en Viernes 25
+}
+
+document.addEventListener("DOMContentLoaded", boot);
+</script>
+</body>
+</html>
