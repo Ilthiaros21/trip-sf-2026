@@ -3,22 +3,23 @@
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: oklch(0.12 0.016 55);
-    --bg-elevated: oklch(0.18 0.022 55);
-    --surface: oklch(0.21 0.026 55);
-    --surface-solid: oklch(0.205 0.026 55);
-    --border: oklch(0.32 0.03 55 / 0.5);
-    --border-strong: oklch(0.42 0.035 55 / 0.7);
-    --hairline: oklch(0.96 0.01 70 / 0.08);
-    --text: oklch(0.96 0.01 70);
-    --text-dim: oklch(0.72 0.02 65);
-    --text-faint: oklch(0.55 0.02 60);
-    --accent: oklch(0.78 0.14 70);
-    --accent-strong: oklch(0.82 0.16 68);
-    --accent-ink: oklch(0.2 0.05 65);
-    --confirmed: oklch(0.72 0.11 165);
-    --pending: oklch(0.78 0.13 80);
-    --danger: oklch(0.68 0.18 25);
+    /* Paleta cálida y clara — Darlington (sage) / Beeswax (ámbar) / Grenadine (naranja-rojo) / Cafe Latte (café). Nada de negro, nada de mostaza. */
+    --bg: oklch(0.965 0.014 95);
+    --bg-elevated: oklch(0.91 0.028 145);
+    --surface: oklch(0.995 0.006 90);
+    --surface-solid: oklch(0.98 0.008 90);
+    --border: oklch(0.45 0.04 60 / 0.22);
+    --border-strong: oklch(0.4 0.045 60 / 0.35);
+    --hairline: oklch(0.3 0.03 60 / 0.09);
+    --text: oklch(0.3 0.035 55);
+    --text-dim: oklch(0.46 0.04 55);
+    --text-faint: oklch(0.5 0.032 60);
+    --accent: oklch(0.55 0.185 34);
+    --accent-strong: oklch(0.48 0.2 31);
+    --accent-ink: oklch(0.99 0.008 85);
+    --confirmed: oklch(0.4 0.1 150);
+    --pending: oklch(0.46 0.14 65);
+    --danger: oklch(0.48 0.19 22);
 
     --space-xs: 4px;
     --space-sm: 8px;
@@ -39,7 +40,7 @@
 
     --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
 
-    color-scheme: dark;
+    color-scheme: light;
   }
 
   * { box-sizing: border-box; }
@@ -62,9 +63,9 @@
     position: fixed;
     inset: 0;
     background:
-      radial-gradient(900px 500px at 12% -8%, oklch(0.4 0.1 65 / 0.5), transparent 58%),
-      radial-gradient(700px 460px at 105% 4%, oklch(0.35 0.09 45 / 0.4), transparent 55%),
-      radial-gradient(600px 700px at 50% 120%, oklch(0.3 0.07 70 / 0.28), transparent 60%);
+      radial-gradient(900px 500px at 12% -8%, oklch(0.88 0.05 150 / 0.55), transparent 60%),
+      radial-gradient(700px 460px at 105% 4%, oklch(0.85 0.08 70 / 0.4), transparent 55%),
+      radial-gradient(600px 700px at 50% 120%, oklch(0.82 0.08 40 / 0.28), transparent 60%);
     pointer-events: none;
     z-index: 0;
   }
@@ -126,7 +127,7 @@
     border-radius: 999px;
     border: 1px solid var(--hairline);
     background: color-mix(in oklch, var(--bg-elevated) 72%, transparent);
-    box-shadow: 0 8px 30px -12px oklch(0 0 0 / 0.5), inset 0 1px 0 var(--hairline);
+    box-shadow: 0 8px 30px -12px oklch(0.3 0.03 60 / 0.18), inset 0 1px 0 var(--hairline);
     margin-bottom: var(--space-sm);
   }
   #trip-app .mode-btn {
@@ -165,7 +166,7 @@
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-x: contain;
-    box-shadow: 0 8px 30px -12px oklch(0 0 0 / 0.5), inset 0 1px 0 var(--hairline);
+    box-shadow: 0 8px 30px -12px oklch(0.3 0.03 60 / 0.18), inset 0 1px 0 var(--hairline);
   }
   @supports (backdrop-filter: blur(1px)) {
     #trip-app nav.tabs { backdrop-filter: blur(22px) saturate(150%); }
@@ -459,7 +460,7 @@
     color: var(--confirmed);
   }
   #trip-app .food-tag[data-kind="move"] {
-    background: color-mix(in oklch, var(--accent) 22%, transparent);
+    background: color-mix(in oklch, var(--accent) 12%, transparent);
     color: var(--accent-strong);
   }
 
@@ -629,7 +630,7 @@
     transition: background 0.25s var(--ease-spring), transform 0.25s var(--ease-spring);
   }
   #trip-app .contact-link:active { transform: scale(0.97); }
-  #trip-app .contact-link.is-primary { background: color-mix(in oklch, var(--accent) 20%, var(--bg-elevated)); color: var(--accent-strong); }
+  #trip-app .contact-link.is-primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 
   #trip-app footer.credits {
     text-align: center;
