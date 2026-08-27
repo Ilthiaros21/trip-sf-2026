@@ -80,15 +80,20 @@
     z-index: 0;
   }
 
-  header.topbar {
+  /* ---------------------------------------------------------------
+     App bar: title + mode switch + active nav, ALL ONE sticky unit.
+     (Two independent sticky siblings both at top:0 would fight for
+     the same band and overlap — one unit avoids that entirely.)
+     --------------------------------------------------------------- */
+  .app-bar {
     position: sticky;
     top: 0;
     z-index: 20;
     padding: calc(var(--space-xl) + env(safe-area-inset-top)) var(--space-lg) var(--space-md);
-    background: color-mix(in oklch, var(--bg) 78%, transparent);
+    background: color-mix(in oklch, var(--bg) 80%, transparent);
   }
   @supports (backdrop-filter: blur(1px)) {
-    header.topbar { backdrop-filter: blur(28px) saturate(160%); }
+    .app-bar { backdrop-filter: blur(28px) saturate(160%); }
   }
 
   .eyebrow {
@@ -118,25 +123,54 @@
 
   .trip-title {
     font-family: var(--font-display);
-    font-size: 1.9rem;
+    font-size: 1.7rem;
     font-weight: 700;
     letter-spacing: -0.025em;
     text-wrap: balance;
     margin: 0 0 3px;
   }
   .trip-sub {
-    font-size: 0.875rem;
+    font-size: 0.85rem;
     color: var(--text-dim);
-    margin: 0;
+    margin: 0 0 var(--space-md);
+  }
+
+  /* Mode switch — segmented control, two big targets */
+  .mode-switch {
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    border-radius: 999px;
+    border: 1px solid var(--hairline);
+    background: color-mix(in oklch, var(--bg-elevated) 72%, transparent);
+    box-shadow: 0 8px 30px -12px oklch(0 0 0 / 0.5), inset 0 1px 0 var(--hairline);
+    margin-bottom: var(--space-sm);
+  }
+  .mode-btn {
+    flex: 1;
+    min-height: 46px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-dim);
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.92rem;
+    cursor: pointer;
+    transition: background 0.3s var(--ease-spring), color 0.3s var(--ease-spring), transform 0.3s var(--ease-spring);
+  }
+  .mode-btn:active { transform: scale(0.97); }
+  .mode-btn[aria-selected="true"] {
+    background: var(--accent);
+    color: var(--accent-ink);
+    box-shadow: 0 4px 14px -4px color-mix(in oklch, var(--accent) 60%, transparent);
+  }
+  .mode-btn:focus-visible {
+    outline: 2px solid var(--accent-strong);
+    outline-offset: 2px;
   }
 
   /* Fluid island nav — detached floating glass pill, not edge-to-edge */
-  .tabs-island-wrap {
-    position: sticky;
-    top: 0;
-    z-index: 19;
-    padding: var(--space-sm) var(--space-lg) var(--space-lg);
-  }
   nav.tabs {
     display: flex;
     gap: var(--space-xs);
@@ -155,6 +189,7 @@
     nav.tabs { backdrop-filter: blur(22px) saturate(150%); }
   }
   nav.tabs::-webkit-scrollbar { display: none; }
+  nav.tabs[hidden] { display: none; }
 
   .tab-btn {
     flex: 0 0 auto;
@@ -193,6 +228,8 @@
     max-width: 640px;
     margin: 0 auto;
   }
+
+  .mode-group[hidden] { display: none; }
 
   section.day-panel { display: none; }
   section.day-panel[data-active="true"] { display: block; }
@@ -275,7 +312,8 @@
     border-radius: var(--radius-shell);
     padding: 5px;
   }
-  .block[data-status="pending"] .bezel-shell {
+  .block[data-status="pending"] .bezel-shell,
+  .bezel-shell.is-pending {
     border-color: color-mix(in oklch, var(--pending) 35%, transparent);
   }
 
@@ -289,7 +327,8 @@
   @supports (backdrop-filter: blur(1px)) {
     .card { backdrop-filter: blur(18px); }
   }
-  .block[data-status="pending"] .card {
+  .block[data-status="pending"] .card,
+  .card.is-pending {
     border-style: dashed;
     border-color: var(--pending);
     background: color-mix(in oklch, var(--pending) 6%, var(--surface));
@@ -347,7 +386,8 @@
     color: var(--confirmed);
     white-space: nowrap;
   }
-  .block[data-status="pending"] .status-pill {
+  .block[data-status="pending"] .status-pill,
+  .status-pill.is-pending {
     background: color-mix(in oklch, var(--pending) 22%, transparent);
     color: var(--pending);
   }
@@ -552,6 +592,77 @@
   .hotel-name { font-weight: 600; }
   .hotel-price { color: var(--text-faint); font-size: 0.78rem; }
 
+  /* ---------------------------------------------------------------
+     Checklists (Documentos, Ropa) — real toggle state, per-device
+     via localStorage. Still no server, still no cross-device sync.
+     --------------------------------------------------------------- */
+  .checklist { display: flex; flex-direction: column; gap: var(--space-sm); margin-bottom: var(--space-lg); }
+  .check-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-lg);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: inset 0 1px 0 var(--hairline);
+    cursor: pointer;
+    min-height: 44px;
+    transition: background 0.25s var(--ease-spring);
+  }
+  .check-row:active { transform: scale(0.995); }
+  .check-box {
+    flex: 0 0 auto;
+    width: 24px;
+    height: 24px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border-strong);
+    background: var(--bg-elevated);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: transparent;
+    transition: background 0.25s var(--ease-spring), border-color 0.25s var(--ease-spring), color 0.15s var(--ease-spring);
+  }
+  .check-row.is-checked .check-box {
+    background: var(--confirmed);
+    border-color: var(--confirmed);
+    color: var(--bg);
+  }
+  .check-label { font-size: 0.92rem; line-height: 1.4; transition: color 0.25s ease, opacity 0.25s ease; }
+  .check-row.is-checked .check-label { color: var(--text-faint); text-decoration: line-through; opacity: 0.75; }
+
+  .ropa-columns { display: flex; flex-direction: column; gap: var(--space-2xl); }
+  .ropa-col-title {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 var(--space-md);
+  }
+
+  /* Seguridad — contact cards with tap-to-call / tap-to-map */
+  .contact-card-value { font-size: 0.95rem; font-weight: 600; margin-top: 2px; }
+  .contact-card-note { font-size: 0.8rem; color: var(--text-faint); margin-top: 4px; line-height: 1.4; }
+  .contact-actions { display: flex; gap: var(--space-sm); margin-top: var(--space-md); }
+  .contact-link {
+    flex: 1;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text);
+    background: var(--bg-elevated);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-sm);
+    transition: background 0.25s var(--ease-spring), transform 0.25s var(--ease-spring);
+  }
+  .contact-link:active { transform: scale(0.97); }
+  .contact-link.is-primary { background: color-mix(in oklch, var(--accent) 20%, var(--bg-elevated)); color: var(--accent-strong); }
+
   footer.credits {
     text-align: center;
     color: var(--text-faint);
@@ -569,13 +680,22 @@
   }
   .day-panel[data-active="true"] > .day-heading { animation-delay: 0s; }
   .day-panel[data-active="true"] > .day-note { animation-delay: 0.04s; }
-  .day-panel[data-active="true"] .timeline > * { animation: riseIn 0.55s var(--ease-spring) both; }
-  .day-panel[data-active="true"] .timeline > *:nth-child(1) { animation-delay: 0.05s; }
-  .day-panel[data-active="true"] .timeline > *:nth-child(2) { animation-delay: 0.1s; }
-  .day-panel[data-active="true"] .timeline > *:nth-child(3) { animation-delay: 0.15s; }
-  .day-panel[data-active="true"] .timeline > *:nth-child(4) { animation-delay: 0.2s; }
-  .day-panel[data-active="true"] .timeline > *:nth-child(5) { animation-delay: 0.25s; }
-  .day-panel[data-active="true"] .timeline > *:nth-child(6) { animation-delay: 0.3s; }
+  .day-panel[data-active="true"] .timeline > *,
+  .day-panel[data-active="true"] .checklist > * {
+    animation: riseIn 0.55s var(--ease-spring) both;
+  }
+  .day-panel[data-active="true"] .timeline > *:nth-child(1),
+  .day-panel[data-active="true"] .checklist > *:nth-child(1) { animation-delay: 0.05s; }
+  .day-panel[data-active="true"] .timeline > *:nth-child(2),
+  .day-panel[data-active="true"] .checklist > *:nth-child(2) { animation-delay: 0.1s; }
+  .day-panel[data-active="true"] .timeline > *:nth-child(3),
+  .day-panel[data-active="true"] .checklist > *:nth-child(3) { animation-delay: 0.15s; }
+  .day-panel[data-active="true"] .timeline > *:nth-child(4),
+  .day-panel[data-active="true"] .checklist > *:nth-child(4) { animation-delay: 0.2s; }
+  .day-panel[data-active="true"] .timeline > *:nth-child(5),
+  .day-panel[data-active="true"] .checklist > *:nth-child(5) { animation-delay: 0.25s; }
+  .day-panel[data-active="true"] .timeline > *:nth-child(n+6),
+  .day-panel[data-active="true"] .checklist > *:nth-child(n+6) { animation-delay: 0.3s; }
   .day-panel[data-active="true"] .summary-grid > * { animation: riseIn 0.55s var(--ease-spring) both; }
   .day-panel[data-active="true"] .summary-grid > *:nth-child(1) { animation-delay: 0.04s; }
   .day-panel[data-active="true"] .summary-grid > *:nth-child(2) { animation-delay: 0.09s; }
@@ -584,7 +704,9 @@
   .day-panel[data-active="true"] .summary-grid > *:nth-child(n+5) { animation-delay: 0.24s; }
 
   @media (prefers-reduced-motion: reduce) {
-    .card-body-wrap, .chevron, .tab-btn, .card-head, .day-panel[data-active="true"] > *, .day-panel[data-active="true"] .timeline > *, .day-panel[data-active="true"] .summary-grid > * {
+    .card-body-wrap, .chevron, .tab-btn, .card-head, .mode-btn, .check-row,
+    .day-panel[data-active="true"] > *, .day-panel[data-active="true"] .timeline > *,
+    .day-panel[data-active="true"] .checklist > *, .day-panel[data-active="true"] .summary-grid > * {
       transition: none !important;
       animation: none !important;
     }
@@ -592,6 +714,8 @@
 
   @media (min-width: 720px) {
     main { max-width: 760px; }
+    .ropa-columns { flex-direction: row; align-items: flex-start; }
+    .ropa-columns > * { flex: 1; }
     /* Asymmetrical bento — only where content actually varies in weight; single column below this breakpoint */
     #panel-summary .summary-grid {
       display: grid;
@@ -610,17 +734,24 @@
 </head>
 <body>
 
-<header class="topbar">
+<div class="app-bar">
   <span class="eyebrow">Viaje · Solo lectura</span>
   <p class="trip-title">SF Bay Area</p>
   <p class="trip-sub">Raúl &amp; Pao · 25 sept – 1 oct 2026</p>
-</header>
 
-<div class="tabs-island-wrap">
-  <nav class="tabs" role="tablist" aria-label="Días del viaje" id="tabs"></nav>
+  <div class="mode-switch" role="tablist" aria-label="Modo">
+    <button class="mode-btn" type="button" id="mode-trip" role="tab" aria-selected="true" aria-controls="group-trip">Itinerario</button>
+    <button class="mode-btn" type="button" id="mode-info" role="tab" aria-selected="false" aria-controls="group-info">Info práctica</button>
+  </div>
+
+  <nav class="tabs" role="tablist" aria-label="Días del viaje" id="tabs-trip"></nav>
+  <nav class="tabs" role="tablist" aria-label="Info práctica" id="tabs-info" hidden></nav>
 </div>
 
-<main id="panels"></main>
+<main>
+  <div id="panels-trip" class="mode-group"></div>
+  <div id="panels-info" class="mode-group" hidden></div>
+</main>
 
 <footer class="credits">Referencia de solo lectura · actualizar regenerando el archivo</footer>
 
@@ -676,7 +807,7 @@ const FIXED_DATA = deepFreeze({
 });
 
 // ---------------------------------------------------------------
-// TRIP_DATA — resto del itinerario, editable conforme se confirmen cosas.
+// TRIP_DATA — itinerario día por día, editable conforme se confirmen cosas.
 // ---------------------------------------------------------------
 const REQUIRED_BLOCK_FIELDS = ["time", "title", "status"];
 
@@ -877,6 +1008,81 @@ const TRIP_DATA = {
 };
 
 // ---------------------------------------------------------------
+// INFO_DATA — Documentos, Ropa, Seguridad. Checklists persisten por
+// dispositivo (localStorage) — no sincronizan entre el teléfono de
+// Raúl y el de Pao, cada quien ve su propio avance.
+// ---------------------------------------------------------------
+const DOCUMENTOS_CHECKLIST = [
+  { key: "pass-raul", label: "Pasaporte de Raúl" },
+  { key: "visa-raul", label: "Visa de Raúl" },
+  { key: "pass-pao", label: "Pasaporte de Pao" },
+  { key: "visa-pao", label: "Visa de Pao" },
+  { key: "flight-out", label: "Confirmación vuelo ida (MEX → SFO)" },
+  { key: "flight-back-raul", label: "Confirmación vuelo regreso Raúl (SFO → LAX → MEX)" },
+  { key: "hotel", label: "Reservación de hotel (Aloft Mountain View)" }
+];
+
+const PACKING_ITEMS = [
+  { key: "shirts", label: "3–4 playeras/blusas casuales" },
+  { key: "outfit", label: "1–2 outfits arreglados (cena con Vaish)" },
+  { key: "pants", label: "Jean/pants cómodo + short/pants ligero" },
+  { key: "jacket", label: "Chamarra ligera (SF con neblina)" },
+  { key: "layer", label: "Sudadera / capa media (noches ~13°C)" },
+  { key: "underwear", label: "Ropa interior/calcetines para 5–6 días" },
+  { key: "pajamas", label: "Piyama" },
+  { key: "shoes", label: "Tenis cómodos — caminan mucho" },
+  { key: "sun", label: "Gorra y lentes de sol" },
+  { key: "jersey", label: "Algo rojo/dorado 49ers (se compra el sábado)" },
+  { key: "sunscreen", label: "Protector solar" },
+  { key: "bottle", label: "Botella de agua reutilizable transparente" },
+  { key: "powerbank", label: "Power bank / cargador" },
+  { key: "bag", label: "Bolsa clara o clutch chico ≤4.5\"×6.5\" (día del partido)" }
+];
+
+const SEGURIDAD_DATA = [
+  {
+    title: "Emergencias EE.UU.",
+    value: "911",
+    note: "Policía, bomberos, ambulancia.",
+    tel: "911",
+    isPrimary: true
+  },
+  {
+    title: "Sutter Urgent Care",
+    value: "701 East El Camino Real, 2do piso, Mountain View",
+    note: "El más cercano al hotel. Abierto todos los días, 8am–8pm.",
+    tel: "+16509347800",
+    mapQuery: "Sutter Urgent Care, 701 East El Camino Real, Mountain View, CA"
+  },
+  {
+    title: "El Camino Hospital — Urgencias",
+    value: "2500 Grant Rd, Mountain View",
+    note: "Sala de emergencias, abierto 24 horas.",
+    tel: "+16509407055",
+    mapQuery: "El Camino Hospital Emergency Room, 2500 Grant Rd, Mountain View, CA"
+  },
+  {
+    title: "Consulado de México en San Francisco",
+    value: "532 Folsom St, San Francisco, CA 94105",
+    note: "Lun–Vie 9am–5pm. Para pasaporte perdido o asistencia consular. Línea de emergencia fuera de horario: llamar y seguir el conmutador (no confirmado un número directo aparte).",
+    tel: "+14153541700",
+    mapQuery: "Consulado General de México, 532 Folsom St, San Francisco, CA"
+  }
+];
+
+// ---------------------------------------------------------------
+// localStorage helpers — checklists de Documentos y Ropa
+// ---------------------------------------------------------------
+function loadCheck(key) {
+  try { return localStorage.getItem("trip_check_" + key) === "1"; }
+  catch (e) { return false; }
+}
+function saveCheck(key, val) {
+  try { localStorage.setItem("trip_check_" + key, val ? "1" : "0"); }
+  catch (e) { /* localStorage unavailable — state just won't persist */ }
+}
+
+// ---------------------------------------------------------------
 // Render
 // ---------------------------------------------------------------
 
@@ -906,8 +1112,8 @@ function chevronSvg() {
 }
 
 // Double-bezel: outer machined shell wrapping an inner glass core.
-function shell(coreNode) {
-  return el("div", { class: "bezel-shell" }, [coreNode]);
+function shell(coreNode, extraClass) {
+  return el("div", { class: "bezel-shell" + (extraClass ? " " + extraClass : "") }, [coreNode]);
 }
 
 function renderFoodOptions(food) {
@@ -983,6 +1189,61 @@ function bindExpandDelegate(container) {
   });
 }
 
+function checkSvg() {
+  const s = document.createElement("span");
+  s.innerHTML = '<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="14" height="14"><path d="M2.5 8.5L6 12L13.5 3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  return s.firstChild;
+}
+
+function renderCheckRow(item, storageKey) {
+  const box = el("span", { class: "check-box" }, [checkSvg()]);
+  const label = el("span", { class: "check-label" }, [item.label]);
+  const row = el("div", {
+    class: "check-row", role: "checkbox", tabindex: "0",
+    "aria-checked": "false", "data-key": storageKey
+  }, [box, label]);
+  return row;
+}
+
+function renderChecklist(items, keyPrefix) {
+  const wrap = el("div", { class: "checklist" });
+  items.forEach(function (item) {
+    wrap.appendChild(renderCheckRow(item, keyPrefix + "_" + item.key));
+  });
+  return wrap;
+}
+
+// Delegación: toggle de checkbox + persistencia en localStorage.
+function bindChecklistDelegate(container) {
+  function toggle(row) {
+    const checked = row.getAttribute("aria-checked") === "true";
+    row.setAttribute("aria-checked", checked ? "false" : "true");
+    row.classList.toggle("is-checked", !checked);
+    saveCheck(row.dataset.key, !checked);
+  }
+  container.addEventListener("click", function (event) {
+    const row = event.target.closest(".check-row");
+    if (!row || !container.contains(row)) return;
+    toggle(row);
+  });
+  container.addEventListener("keydown", function (event) {
+    if (event.key !== " " && event.key !== "Enter") return;
+    const row = event.target.closest(".check-row");
+    if (!row || !container.contains(row)) return;
+    event.preventDefault();
+    toggle(row);
+  });
+}
+
+function hydrateChecklists(root) {
+  root.querySelectorAll(".check-row").forEach(function (row) {
+    if (loadCheck(row.dataset.key)) {
+      row.setAttribute("aria-checked", "true");
+      row.classList.add("is-checked");
+    }
+  });
+}
+
 function renderDayPanel(day) {
   const panel = el("section", { class: "day-panel", id: "panel-" + day.key, role: "tabpanel", "aria-labelledby": "tab-" + day.key });
   panel.appendChild(el("h2", { class: "day-heading" }, [day.heading]));
@@ -1006,6 +1267,75 @@ function renderPretripPanel() {
     ])));
   });
   panel.appendChild(list);
+  return panel;
+}
+
+function renderDocumentosPanel() {
+  const panel = el("section", { class: "day-panel", id: "panel-documentos", role: "tabpanel", "aria-labelledby": "tab-documentos" });
+  panel.appendChild(el("h2", { class: "day-heading" }, ["Documentos"]));
+  panel.appendChild(el("p", { class: "day-note" }, ["Revisar antes de salir de casa. Se guarda en este teléfono — no se sincroniza con el de la otra persona."]));
+  panel.appendChild(renderChecklist(DOCUMENTOS_CHECKLIST, "doc"));
+
+  const pendingCard = el("div", { class: "card is-pending" }, [
+    el("div", { class: "card-head", style: "cursor:default;" }, [
+      el("div", { class: "card-title-group" }, [
+        el("div", { class: "card-title" }, ["Confirmación vuelo Pao"]),
+        el("div", { class: "card-desc" }, ["Vía empresa — aún no existe. Se agrega aquí en cuanto la tengan."])
+      ]),
+      el("span", { class: "status-pill is-pending" }, ["Por confirmar"])
+    ])
+  ]);
+  panel.appendChild(shell(pendingCard, "is-pending"));
+  return panel;
+}
+
+function renderRopaPanel() {
+  const panel = el("section", { class: "day-panel", id: "panel-ropa", role: "tabpanel", "aria-labelledby": "tab-ropa" });
+  panel.appendChild(el("h2", { class: "day-heading" }, ["Ropa"]));
+  panel.appendChild(el("p", { class: "day-note" }, ["Misma lista para los dos — ajústenla a mano si algo cambia. Cada quien tacha lo suyo en su propio teléfono."]));
+
+  const columns = el("div", { class: "ropa-columns" });
+  columns.appendChild(el("div", null, [
+    el("h3", { class: "ropa-col-title" }, ["Raúl"]),
+    renderChecklist(PACKING_ITEMS, "ropa_raul")
+  ]));
+  columns.appendChild(el("div", null, [
+    el("h3", { class: "ropa-col-title" }, ["Pao"]),
+    renderChecklist(PACKING_ITEMS, "ropa_pao")
+  ]));
+  panel.appendChild(columns);
+  return panel;
+}
+
+function contactCard(item) {
+  const card = el("div", { class: "summary-card" }, [
+    el("h2", null, [item.title]),
+    el("div", { class: "contact-card-value" }, [item.value]),
+    el("div", { class: "contact-card-note" }, [item.note])
+  ]);
+  const actions = el("div", { class: "contact-actions" });
+  actions.appendChild(el("a", {
+    class: "contact-link" + (item.isPrimary ? " is-primary" : ""),
+    href: "tel:" + item.tel
+  }, ["Llamar"]));
+  if (item.mapQuery) {
+    actions.appendChild(el("a", {
+      class: "contact-link",
+      href: "https://maps.google.com/?q=" + encodeURIComponent(item.mapQuery),
+      target: "_blank", rel: "noopener"
+    }, ["Ver mapa"]));
+  }
+  card.appendChild(actions);
+  return card;
+}
+
+function renderSeguridadPanel() {
+  const panel = el("section", { class: "day-panel", id: "panel-seguridad", role: "tabpanel", "aria-labelledby": "tab-seguridad" });
+  panel.appendChild(el("h2", { class: "day-heading" }, ["Seguridad"]));
+  panel.appendChild(el("p", { class: "day-note" }, ["Números y direcciones a la mano — sin tener que buscar en el momento."]));
+  const grid = el("div", { class: "summary-grid" });
+  SEGURIDAD_DATA.forEach(function (item) { grid.appendChild(shell(contactCard(item))); });
+  panel.appendChild(grid);
   return panel;
 }
 
@@ -1096,19 +1426,11 @@ function renderSummaryPanel() {
     summaryRow("Transporte", "Default a Caltrain/caminar — Uber solo casos puntuales")
   ])));
 
-  // Packing list
-  const packing = [
-    "3–4 playeras/blusas casuales", "1–2 outfits arreglados (cena con Vaish)",
-    "Jean/pants cómodo + short/pants ligero", "Chamarra ligera (SF con neblina)",
-    "Sudadera / capa media (noches ~13°C)", "Tenis cómodos para caminar mucho",
-    "Gorra y lentes de sol", "Algo rojo/dorado 49ers", "Protector solar",
-    "Botella de agua reutilizable transparente", "Power bank / cargador",
-    "Pao: bolsa clara o clutch chico ≤4.5\"×6.5\" para el día del partido"
-  ];
+  // Packing list (mismos items que el tab Ropa, resumidos)
   grid.appendChild(shell(el("div", { class: "summary-card" }, [
     el("h2", null, ["Qué llevar"]),
-    el("p", { class: "card-desc", style: "margin-bottom:10px;" }, ["Clima fin de sept: SF fresco/neblina 18–21°C día, ~13°C noche. Mountain View más cálido y soleado, 26–29°C día."]),
-    el("div", { class: "pill-list" }, packing.map(function (p) { return el("span", { class: "pill" }, [p]); }))
+    el("p", { class: "card-desc", style: "margin-bottom:10px;" }, ["Clima fin de sept: SF fresco/neblina 18–21°C día, ~13°C noche. Mountain View más cálido y soleado, 26–29°C día. Checklist completo con casillas en la pestaña Ropa."]),
+    el("div", { class: "pill-list" }, PACKING_ITEMS.map(function (p) { return el("span", { class: "pill" }, [p.label]); }))
   ])));
 
   panel.appendChild(grid);
@@ -1119,43 +1441,82 @@ function renderSummaryPanel() {
 // Boot
 // ---------------------------------------------------------------
 
-function boot() {
-  validateTripData(TRIP_DATA);
-
-  const tabsEl = document.getElementById("tabs");
-  const panelsEl = document.getElementById("panels");
-  bindExpandDelegate(panelsEl);
-
-  const tabDefs = [{ key: "pretrip", label: "Antes de viajar" }]
-    .concat(TRIP_DATA.days.map(function (d) { return { key: d.key, label: d.tab }; }))
-    .concat([{ key: "summary", label: "Resumen" }]);
-
-  panelsEl.appendChild(renderPretripPanel());
-  TRIP_DATA.days.forEach(function (d) { panelsEl.appendChild(renderDayPanel(d)); });
-  panelsEl.appendChild(renderSummaryPanel());
-
-  tabDefs.forEach(function (t, i) {
+function makeTabGroup(config) {
+  // config: { navEl, panelsEl, tabs: [{key,label,panel}] }
+  config.tabs.forEach(function (t) {
     const btn = el("button", {
       class: "tab-btn", type: "button", role: "tab",
       id: "tab-" + t.key, "aria-controls": "panel-" + t.key,
-      "aria-selected": i === 1 ? "true" : "false"
+      "aria-selected": "false"
     }, [t.label]);
-    btn.addEventListener("click", function () { activate(t.key); });
-    tabsEl.appendChild(btn);
+    btn.addEventListener("click", function () { activateInGroup(config, t.key); });
+    config.navEl.appendChild(btn);
+    config.panelsEl.appendChild(t.panel);
+  });
+  return config;
+}
+
+function activateInGroup(config, key) {
+  config.navEl.querySelectorAll(".tab-btn").forEach(function (b) {
+    b.setAttribute("aria-selected", b.id === "tab-" + key ? "true" : "false");
+  });
+  config.panelsEl.querySelectorAll(".day-panel").forEach(function (p) {
+    p.setAttribute("data-active", p.id === "panel-" + key ? "true" : "false");
+  });
+  const activeBtn = document.getElementById("tab-" + key);
+  if (activeBtn) activeBtn.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
+  config.activeKey = key;
+}
+
+function setMode(mode, groups) {
+  const isTrip = mode === "trip";
+  document.getElementById("mode-trip").setAttribute("aria-selected", isTrip ? "true" : "false");
+  document.getElementById("mode-info").setAttribute("aria-selected", isTrip ? "false" : "true");
+
+  groups.trip.navEl.hidden = !isTrip;
+  groups.trip.panelsEl.hidden = !isTrip;
+  groups.info.navEl.hidden = isTrip;
+  groups.info.panelsEl.hidden = isTrip;
+}
+
+function boot() {
+  validateTripData(TRIP_DATA);
+
+  const tabsTrip = document.getElementById("tabs-trip");
+  const panelsTrip = document.getElementById("panels-trip");
+  const tabsInfo = document.getElementById("tabs-info");
+  const panelsInfo = document.getElementById("panels-info");
+
+  bindExpandDelegate(panelsTrip);
+  bindExpandDelegate(panelsInfo);
+  bindChecklistDelegate(panelsInfo);
+
+  const tripGroup = makeTabGroup({
+    navEl: tabsTrip, panelsEl: panelsTrip,
+    tabs: TRIP_DATA.days.map(function (d) { return { key: d.key, label: d.tab, panel: renderDayPanel(d) }; })
   });
 
-  function activate(key) {
-    tabsEl.querySelectorAll(".tab-btn").forEach(function (b) {
-      b.setAttribute("aria-selected", b.id === "tab-" + key ? "true" : "false");
-    });
-    panelsEl.querySelectorAll(".day-panel").forEach(function (p) {
-      p.setAttribute("data-active", p.id === "panel-" + key ? "true" : "false");
-    });
-    const activeBtn = document.getElementById("tab-" + key);
-    if (activeBtn) activeBtn.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
-  }
+  const infoGroup = makeTabGroup({
+    navEl: tabsInfo, panelsEl: panelsInfo,
+    tabs: [
+      { key: "pretrip", label: "Antes de viajar", panel: renderPretripPanel() },
+      { key: "documentos", label: "Documentos", panel: renderDocumentosPanel() },
+      { key: "ropa", label: "Ropa", panel: renderRopaPanel() },
+      { key: "seguridad", label: "Seguridad", panel: renderSeguridadPanel() },
+      { key: "summary", label: "Resumen", panel: renderSummaryPanel() }
+    ]
+  });
 
-  activate(TRIP_DATA.days[0].key); // arranca en Viernes 25
+  hydrateChecklists(panelsInfo);
+
+  activateInGroup(tripGroup, TRIP_DATA.days[0].key);
+  activateInGroup(infoGroup, "pretrip");
+
+  const groups = { trip: tripGroup, info: infoGroup };
+  setMode("trip", groups);
+
+  document.getElementById("mode-trip").addEventListener("click", function () { setMode("trip", groups); });
+  document.getElementById("mode-info").addEventListener("click", function () { setMode("info", groups); });
 }
 
 document.addEventListener("DOMContentLoaded", boot);

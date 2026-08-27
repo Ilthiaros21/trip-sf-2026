@@ -96,5 +96,20 @@ Viaje: viernes 25 sept – martes 29 sept 2026. Herramienta de referencia, no ap
 
 Cualquier cambio de contenido (info nueva, corrección, decisión de Pao, etc.) se refleja en LOS TRES lugares: `itinerario.html` (o su fuente de datos), `viaje-resumen.md` local, y el Google Doc en Drive. No dejar ninguno desactualizado.
 
+## Decisiones — Restructura Info práctica
+
+- Nav de dos modos: **Itinerario** (tabs de días, sin cambios) / **Info práctica** (Antes de viajar, Documentos, Ropa, Seguridad, Resumen).
+- **Documentos** y **Ropa**: checklists con checkboxes reales, persistidos en `localStorage` por dispositivo (no sincronizan entre el teléfono de Raúl y el de Pao).
+- **Ropa**: mismo `PACKING_ITEMS` (fuente única) duplicado en dos columnas independientes, Raúl / Pao.
+- **Seguridad**: informativo, con botones tap-to-call / tap-to-map. Datos verificados vía búsqueda (no inventados):
+  - 911 (emergencias EE.UU.)
+  - Sutter Urgent Care, 701 East El Camino Real, Mountain View, (650) 934-7800, 8am–8pm
+  - El Camino Hospital — Urgencias, 2500 Grant Rd, Mountain View, (650) 940-7055, 24h
+  - Consulado de México en SF, 532 Folsom St, (415) 354-1700 — fuente oficial consulmex.sre.gob.mx. Línea de emergencia fuera de horario NO confirmada — no inventada, queda anotado así en la UI.
+
+## Hosting
+
+Publicado en GitHub Pages: **https://ilthiaros21.github.io/trip-sf-2026/** (repo `Ilthiaros21/trip-sf-2026`, rama `master`, root). Cada cambio se sube con `git push` y el link se actualiza solo — no depende de login de Claude ni de reenviar archivos. El Artifact (`itinerario-artifact.html`, mismo contenido con scoping `#trip-app`) se mantiene como respaldo secundario, pero GitHub Pages es la vía principal para consultar desde los teléfonos.
+
 ## Estado
-Docs de Paso 0 listos y sincronizados (local + Drive). Spec técnico actualizado con alcance final. Arrancando Step 1 del build (estructura HTML).
+App con Itinerario + Info práctica (Documentos/Ropa/Seguridad checklists) en producción vía GitHub Pages. Docs sincronizados.

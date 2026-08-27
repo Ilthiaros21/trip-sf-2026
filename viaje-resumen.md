@@ -125,6 +125,25 @@ Raul ya se fue. Espacio reservado para lo que Pao decida hacer estos dias (pendi
 - Miercoles 30: por definir.
 - Jueves 1 oct: por definir, dia de salida, checar horario de vuelo cuando se confirme.
 
+## Documentos a llevar (checklist en la app, tab Documentos)
+
+- Pasaporte de Raul, Visa de Raul
+- Pasaporte de Pao, Visa de Pao
+- Confirmacion vuelo ida (MEX a SFO)
+- Confirmacion vuelo regreso Raul (SFO a LAX a MEX)
+- Reservacion de hotel (Aloft Mountain View)
+- Confirmacion vuelo de Pao: pendiente, via empresa, se agrega cuando exista
+
+## App del viaje
+
+Disponible en **https://ilthiaros21.github.io/trip-sf-2026/** — funciona en cualquier celular, sin login, sin instalar nada. Dos modos: **Itinerario** (los días) e **Info práctica** (Antes de viajar, Documentos, Ropa, Seguridad, Resumen). Documentos y Ropa tienen checklist con casillas que se guardan en cada teléfono por separado.
+
+### Seguridad — números a la mano
+- Emergencias EE.UU.: **911**
+- Sutter Urgent Care (más cercano al hotel): 701 East El Camino Real, Mountain View, (650) 934-7800, 8am–8pm
+- El Camino Hospital — Urgencias 24h: 2500 Grant Rd, Mountain View, (650) 940-7055
+- Consulado de México en SF: 532 Folsom St, San Francisco, (415) 354-1700 (Lun–Vie 9am–5pm)
+
 ## Pendientes generales
 
 - Hotel: cerrar reservacion (Aloft Mountain View, direccion ya confirmada)
