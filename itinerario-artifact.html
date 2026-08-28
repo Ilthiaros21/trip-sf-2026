@@ -58,6 +58,7 @@
     padding-bottom: env(safe-area-inset-bottom);
   }
 
+  /* Warm ambient washes — soft sage/beeswax/terracotta over the cream ground, no dark orbs */
   #trip-app::before {
     content: "";
     position: fixed;
@@ -464,26 +465,18 @@
     color: var(--accent-strong);
   }
 
-  #trip-app .pretrip-item {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    box-shadow: inset 0 1px 0 var(--hairline);
-    padding: var(--space-lg);
-  }
-  @supports (backdrop-filter: blur(1px)) {
-    #trip-app .pretrip-item { backdrop-filter: blur(18px); }
-  }
+  /* pretrip checklist grouping label — sits above its own .checklist block */
   #trip-app .pretrip-when {
+    display: block;
     font-family: var(--font-mono);
     font-size: 0.72rem;
     font-weight: 700;
     color: var(--accent-strong);
     text-transform: uppercase;
     letter-spacing: 0.04em;
+    margin: var(--space-xl) 0 var(--space-sm);
   }
-  #trip-app .pretrip-tasks { margin: var(--space-sm) 0 0; padding-left: 1.1em; font-size: 0.88rem; color: var(--text); line-height: 1.6; }
-  #trip-app .pretrip-tasks li { margin-bottom: 2px; }
+  #trip-app .pretrip-when:first-of-type { margin-top: 0; }
 
   #trip-app .summary-grid { display: flex; flex-direction: column; gap: var(--space-xl); }
   #trip-app .summary-card {
@@ -677,18 +670,13 @@
     #trip-app main { max-width: 760px; }
     #trip-app .ropa-columns { flex-direction: row; align-items: flex-start; }
     #trip-app .ropa-columns > * { flex: 1; }
-    #trip-app #panel-summary .summary-grid {
+    /* Breakpoint-free responsive grid — card count varies per panel now that Resumen is gone */
+    #trip-app #panel-pretrip .summary-grid,
+    #trip-app #panel-seguridad .summary-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: var(--space-xl);
     }
-    #trip-app #panel-summary .summary-grid > *:nth-child(1) { grid-column: span 4; }
-    #trip-app #panel-summary .summary-grid > *:nth-child(2) { grid-column: span 2; }
-    #trip-app #panel-summary .summary-grid > *:nth-child(3) { grid-column: span 2; }
-    #trip-app #panel-summary .summary-grid > *:nth-child(4) { grid-column: span 2; }
-    #trip-app #panel-summary .summary-grid > *:nth-child(5) { grid-column: span 2; }
-    #trip-app #panel-summary .summary-grid > *:nth-child(6) { grid-column: span 2; }
-    #trip-app #panel-summary .summary-grid > *:nth-child(7) { grid-column: span 4; }
   }
 </style>
 
@@ -788,20 +776,46 @@ function validateTripData(data) {
 
 const TRIP_DATA = {
   pretrip: [
-    { when: "Cuanto antes", tasks: ["Cerrar reservación del hotel (Aloft Mountain View) — mientras antes, mejor precio y disponibilidad"] },
-    { when: "Cuanto antes / cuando Pao tenga info", tasks: ["Confirmar vuelo de regreso de Pao (vía empresa)"] },
-    { when: "Cuando se pueda", tasks: ["Confirmar con Delta el tramo SFO→LAX (aerolínea y asiento)"] },
+    { when: "Cuanto antes", tasks: [
+      { key: "hotel", label: "Cerrar reservación del hotel (Aloft Mountain View) — mientras antes, mejor precio y disponibilidad" }
+    ]},
+    { when: "Cuanto antes / cuando Pao tenga info", tasks: [
+      { key: "pao-flight", label: "Confirmar vuelo de regreso de Pao (vía empresa)" }
+    ]},
+    { when: "Cuando se pueda", tasks: [
+      { key: "delta-leg", label: "Confirmar con Delta el tramo SFO→LAX (aerolínea y asiento)" }
+    ]},
     { when: "~22–23 sept (2–3 días antes)", tasks: [
-      "Reservar transporte SFO → Mountain View (Uber Reserve — precio fijo, coche garantizado)",
-      "Cambiar ~$100–150 USD en efectivo en un banco en México (mejor tipo de cambio que el aeropuerto)",
-      "Agregar Clipper card a Apple Wallet / Google Wallet"
+      { key: "uber-reserve", label: "Reservar transporte SFO → Mountain View (Uber Reserve — precio fijo, coche garantizado)" },
+      { key: "cash", label: "Cambiar ~$100–150 USD en efectivo en un banco en México (mejor tipo de cambio que el aeropuerto)" },
+      { key: "clipper", label: "Agregar Clipper card a Apple Wallet / Google Wallet" }
     ]}
   ],
 
   days: [
     {
       key: "vie25", tab: "Vie 25", heading: "Viernes 25 sept",
+      note: "Vuelo directo Aeroméxico MEX→SFO, asientos 24B/24C. Salida internacional — llegar al aeropuerto con ~2h50 de margen.",
       blocks: [
+        {
+          time: "~14:00", title: "Salir de casa hacia AICM", status: "pending", location: "CDMX → Aeropuerto",
+          desc: "Depende de tu zona y del tráfico — deja margen extra.",
+          notes: "Meta: llegar al aeropuerto ~2h50 antes del vuelo (14:30), estándar para vuelo internacional."
+        },
+        {
+          time: "14:30", title: "Check-in y documentos", status: "confirmed", location: "AICM",
+          desc: "Aeroméxico, vuelo MEX → SFO 17:20.",
+          notes: "Mostrador de Aeroméxico. Pasaporte y visa a la mano (ver checklist de Documentos)."
+        },
+        {
+          time: "~16:50", title: "Abordaje", status: "confirmed",
+          desc: "Aeroméxico, asientos " + FIXED_DATA.flights.outbound.seats + ".",
+          notes: "~30 min antes del despegue."
+        },
+        {
+          time: "17:20", title: "Despegue MEX → SFO", status: "confirmed",
+          desc: "Directo, ~4h29m."
+        },
         {
           time: "21:10", title: "Llegada a SFO", status: "confirmed",
           desc: "Aeroméxico directo desde MEX.",
@@ -832,13 +846,17 @@ const TRIP_DATA = {
       note: "Día completo en SF vía Caltrain. Concierto en Shoreline Amphitheatre esta noche — puede haber más tráfico al volver a Mountain View.",
       blocks: [
         {
-          time: "Mañana", title: "Caltrain a San Francisco", status: "confirmed",
+          time: "~7:00am", title: "Despertar", status: "confirmed",
+          desc: "Para llegar a Cal Academy cerca de su apertura, antes de que se llene."
+        },
+        {
+          time: "~7:45am", title: "Caltrain a San Francisco", status: "confirmed",
           desc: "Salida desde Mountain View."
         },
         {
-          time: "3–4h", title: "California Academy of Sciences", status: "confirmed", location: "Golden Gate Park",
+          time: "9:30am–1:30pm", title: "California Academy of Sciences", status: "confirmed", location: "Golden Gate Park",
           desc: "Acuario, planetario, selva tropical.",
-          notes: "Reservar boleto de planetario al llegar, vía QR en el lobby.",
+          notes: "Abre 9:30am (lun–sáb). Reservar boleto de planetario al llegar, vía QR en el lobby.",
           food: {
             label: "Comida cerca (Irving St, ~10 min caminando)",
             options: [
@@ -849,7 +867,7 @@ const TRIP_DATA = {
           }
         },
         {
-          time: "Tarde", title: "Actividad / tiendas — por definir", status: "pending",
+          time: "~1:30pm–5pm", title: "Actividad / tiendas — por definir", status: "pending",
           desc: "Opciones sobre la mesa: Ferry Building, Golden Gate/Crissy Field, Mission District, Dolores Park, Castro, Twin Peaks, Union Square.",
           notes: "No conviene regresar a Mountain View a comer este día — se pierde 1h+ de Caltrain ida-vuelta. Resolver comida en SF mismo."
         },
@@ -867,16 +885,25 @@ const TRIP_DATA = {
       key: "dom27", tab: "Dom 27", heading: "Domingo 27 sept — Día de partido",
       blocks: [
         {
-          time: "Mañana", title: "Desayuno completo en Mountain View", status: "confirmed",
+          time: "~8:00am", title: "Despertar", status: "confirmed",
+          desc: "Día de partido — con tiempo para desayunar bien antes de salir."
+        },
+        {
+          time: "~8:30am", title: "Desayuno completo en Mountain View", status: "confirmed",
           desc: "No en San José — desayunar antes de salir."
         },
         {
-          time: "Media mañana", title: "Caltrain a Santa Clara / Levi's Stadium", status: "confirmed"
+          time: "~10:30am", title: "Caltrain a Santa Clara / Levi's Stadium", status: "confirmed"
+        },
+        {
+          time: "11:05am", title: "Gates abren", status: "confirmed", location: "Levi's Stadium",
+          desc: "Entrada pública abre 2h antes del kickoff.",
+          notes: "Llegar con margen — hay revisión de bolsa clara en la entrada, puede haber fila."
         },
         {
           time: "1:05 pm", title: "49ers vs Cardinals", status: "confirmed", location: "Levi's Stadium",
-          desc: "Sección 301, Fila 1, asientos 20–21. Esquina suroeste, nivel 300, lado con sombra.",
-          notes: "Boletos comprados — Ticketmaster Verified Resale, $200 USD/boleto.",
+          desc: "Sección " + FIXED_DATA.game.section + ", Fila " + FIXED_DATA.game.row + ", asientos " + FIXED_DATA.game.seats + ". " + FIXED_DATA.game.note + ".",
+          notes: "Boletos comprados — " + FIXED_DATA.game.vendor + ", " + FIXED_DATA.game.pricePerTicket + ".",
           warn: "Bag policy: bolsa clara máx 12\"×6\"×12\", o clutch NO clara máx 4.5\"×6.5\". Nada de bolsas normales ni mochilas — la Coach de Pao se queda en el hotel."
         },
         {
@@ -903,6 +930,13 @@ const TRIP_DATA = {
       key: "lun28", tab: "Lun 28", heading: "Lunes 28 sept — Día libre",
       note: "Pao tomó el día — ambos libres.",
       blocks: [
+        {
+          time: "~8:00am", title: "Despertar", status: "confirmed",
+          desc: "Menos prisa que el sábado — SFMOMA abre a las 10am."
+        },
+        {
+          time: "~8:45am", title: "Caltrain a San Francisco", status: "confirmed"
+        },
         {
           time: "10am–5pm", title: "SFMOMA", status: "confirmed", location: "San Francisco",
           desc: "Cerrado martes–miércoles, hoy sí abre.",
@@ -931,16 +965,22 @@ const TRIP_DATA = {
       key: "mar29", tab: "Mar 29", heading: "Martes 29 sept — Regreso de Raúl",
       blocks: [
         {
-          time: "Mañana", title: "Mañana libre", status: "confirmed"
+          time: "~9:00am", title: "Despertar", status: "confirmed",
+          desc: "Mañana libre antes de salir al aeropuerto."
         },
         {
-          time: "Antes de 12:30", title: "Traslado a SFO", status: "confirmed", location: "Mountain View → SFO",
-          desc: "35–45 min. Salir con 2h de margen antes del vuelo."
+          time: "~11:00am", title: "Checkout del hotel", status: "pending",
+          desc: "Confirmar hora de checkout con el Aloft (normalmente 11am–12pm)."
+        },
+        {
+          time: "~11:45am", title: "Traslado a SFO", status: "confirmed", location: "Mountain View → SFO",
+          desc: "35–45 min en auto/Uber.",
+          notes: "Meta: llegar al aeropuerto ~12:30pm (2h antes del vuelo de Raúl, 14:30)."
         },
         {
           time: "14:30", title: "Vuelo de Raúl: SFO → LAX → MEX", status: "confirmed",
           desc: "Escala en LAX. Tramo SFO–LAX pendiente confirmar con Delta.",
-          notes: "Asiento LAX→MEX: 21C."
+          notes: "Asiento LAX→MEX: " + FIXED_DATA.flights.returnRaul.leg2.seat + "."
         }
       ]
     },
@@ -1195,16 +1235,51 @@ function renderDayPanel(day) {
 function renderPretripPanel() {
   const panel = el("section", { class: "day-panel", id: "panel-pretrip", role: "tabpanel", "aria-labelledby": "tab-pretrip" });
   panel.appendChild(el("h2", { class: "day-heading" }, ["Antes de viajar"]));
-  panel.appendChild(el("p", { class: "day-note" }, ["Checklist de referencia — no interactivo. Ir tachando fuera de la app."]));
-  const list = el("div", { class: "timeline" });
-  TRIP_DATA.pretrip.forEach(function (item) {
-    const tasks = el("ul", { class: "pretrip-tasks" }, item.tasks.map(function (t) { return el("li", null, [t]); }));
-    list.appendChild(shell(el("div", { class: "pretrip-item" }, [
-      el("div", { class: "pretrip-when" }, [item.when]),
-      tasks
-    ])));
+  panel.appendChild(el("p", { class: "day-note" }, ["Checklist con casillas — se guarda en este teléfono, no se sincroniza con el de la otra persona."]));
+
+  TRIP_DATA.pretrip.forEach(function (group) {
+    const groupItems = group.tasks.map(function (t) { return { key: t.key, label: t.label }; });
+    const checklist = renderChecklist(groupItems, "pretrip");
+    panel.appendChild(el("div", { class: "pretrip-when" }, [group.when]));
+    panel.appendChild(checklist);
   });
-  panel.appendChild(list);
+
+  const grid = el("div", { class: "summary-grid" });
+
+  grid.appendChild(shell(el("div", { class: "summary-card" }, [
+    el("h2", null, ["Hospedaje"]),
+    el("div", { class: "hotel-options" }, [
+      el("div", { class: "hotel-opt", "data-picked": "true" }, [
+        el("div", null, [
+          el("div", { class: "hotel-name" }, ["Aloft Mountain View — inclinación actual"]),
+          el("div", { class: "hotel-price" }, ["840 East El Camino Real, Mountain View, CA 94040 · $130–180/noche"])
+        ]),
+        el("span", { class: "status-pill" }, ["Por confirmar"])
+      ]),
+      el("div", { class: "hotel-opt" }, [
+        el("div", null, [
+          el("div", { class: "hotel-name" }, ["Hyatt Centric Mountain View"]),
+          el("div", { class: "hotel-price" }, ["$200–350/noche"])
+        ])
+      ]),
+      el("div", { class: "hotel-opt" }, [
+        el("div", null, [
+          el("div", { class: "hotel-name" }, ["Residence Inn Palo Alto/Mountain View"]),
+          el("div", { class: "hotel-price" }, ["$130–160/noche"])
+        ])
+      ])
+    ])
+  ])));
+
+  grid.appendChild(shell(el("div", { class: "summary-card" }, [
+    el("h2", null, ["Presupuesto &amp; dinero"]),
+    summaryRow("Presupuesto total", "$25,000 USD (incluye todo)", true),
+    summaryRow("Estimado real", "~$3,500–4,800 USD para los dos", true),
+    summaryRow("Cash", "~$100–150 USD de colchón, resto tarjeta/Apple Pay"),
+    summaryRow("Transporte", "Default a Caltrain/caminar — Uber solo casos puntuales")
+  ])));
+
+  panel.appendChild(grid);
   return panel;
 }
 
@@ -1231,6 +1306,12 @@ function renderRopaPanel() {
   const panel = el("section", { class: "day-panel", id: "panel-ropa", role: "tabpanel", "aria-labelledby": "tab-ropa" });
   panel.appendChild(el("h2", { class: "day-heading" }, ["Ropa"]));
   panel.appendChild(el("p", { class: "day-note" }, ["Misma lista para los dos — ajústenla a mano si algo cambia. Cada quien tacha lo suyo en su propio teléfono."]));
+
+  panel.appendChild(shell(el("div", { class: "summary-card" }, [
+    el("h2", null, ["Equipaje"]),
+    summaryRow("Maletas", "1 carry-on + 1 documentada (compartidas entre los dos, no una por persona)"),
+    summaryRow("Clima fin de sept", "SF fresco/neblina 18–21°C día, ~13°C noche. Mountain View más cálido y soleado, 26–29°C día.")
+  ])));
 
   const columns = el("div", { class: "ropa-columns" });
   columns.appendChild(el("div", null, [
@@ -1272,6 +1353,12 @@ function renderSeguridadPanel() {
   panel.appendChild(el("h2", { class: "day-heading" }, ["Seguridad"]));
   panel.appendChild(el("p", { class: "day-note" }, ["Números y direcciones a la mano — sin tener que buscar en el momento."]));
   const grid = el("div", { class: "summary-grid" });
+
+  grid.appendChild(shell(el("div", { class: "summary-card allergy-card" }, [
+    el("h2", null, ["⚠ Alergia"]),
+    el("p", null, ["Raúl es alérgico a almendras y nueces de Castilla (pistaches sí). Tenerlo presente al elegir cualquier restaurante."])
+  ])));
+
   SEGURIDAD_DATA.forEach(function (item) { grid.appendChild(shell(contactCard(item))); });
   panel.appendChild(grid);
   return panel;
@@ -1282,90 +1369,6 @@ function summaryRow(label, value, mono) {
     el("span", { class: "summary-row-label" }, [label]),
     el("span", { class: "summary-row-value" + (mono ? " mono" : "") }, [value])
   ]);
-}
-
-function renderSummaryPanel() {
-  const panel = el("section", { class: "day-panel", id: "panel-summary", role: "tabpanel", "aria-labelledby": "tab-summary" });
-  panel.appendChild(el("h2", { class: "day-heading" }, ["Resumen del viaje"]));
-
-  const grid = el("div", { class: "summary-grid" });
-
-  grid.appendChild(shell(el("div", { class: "summary-card allergy-card" }, [
-    el("h2", null, ["⚠ Alergia"]),
-    el("p", null, ["Raúl es alérgico a almendras y nueces de Castilla (pistaches sí). Tenerlo presente al elegir cualquier restaurante."])
-  ])));
-
-  const f = FIXED_DATA.flights;
-  grid.appendChild(shell(el("div", { class: "summary-card" }, [
-    el("h2", null, ["Vuelos"]),
-    summaryRow("Ida", f.outbound.route + " · " + f.outbound.date),
-    summaryRow("Horario", f.outbound.depart + " → " + f.outbound.arrive + " (" + f.outbound.duration + ")", true),
-    summaryRow("Asientos ida", f.outbound.seats, true),
-    summaryRow("Regreso Raúl", f.returnRaul.leg1.route + " → MEX"),
-    summaryRow("Salida SFO", f.returnRaul.leg1.date + " · " + f.returnRaul.leg1.depart, true),
-    summaryRow("Asiento LAX→MEX", f.returnRaul.leg2.seat, true),
-    summaryRow("Regreso Pao", "Pendiente — vía empresa")
-  ])));
-
-  const g = FIXED_DATA.game;
-  grid.appendChild(shell(el("div", { class: "summary-card" }, [
-    el("h2", null, ["Boletos del partido"]),
-    summaryRow("Partido", g.matchup),
-    summaryRow("Fecha", g.date + " · " + g.time),
-    summaryRow("Estadio", g.venue),
-    summaryRow("Asientos", "Sec " + g.section + " · Fila " + g.row + " · " + g.seats, true),
-    summaryRow("Precio", g.pricePerTicket),
-    summaryRow("Nota", g.note)
-  ])));
-
-  grid.appendChild(shell(el("div", { class: "summary-card" }, [
-    el("h2", null, ["Traslados"]),
-    summaryRow("Aeropuerto ↔ hotel", FIXED_DATA.transfers.airportToHotel),
-    summaryRow("Margen martes", FIXED_DATA.transfers.tuesdayBuffer)
-  ])));
-
-  grid.appendChild(shell(el("div", { class: "summary-card" }, [
-    el("h2", null, ["Hospedaje"]),
-    el("div", { class: "hotel-options" }, [
-      el("div", { class: "hotel-opt", "data-picked": "true" }, [
-        el("div", null, [
-          el("div", { class: "hotel-name" }, ["Aloft Mountain View — inclinación actual"]),
-          el("div", { class: "hotel-price" }, ["840 East El Camino Real, Mountain View, CA 94040 · $130–180/noche"])
-        ]),
-        el("span", { class: "status-pill" }, ["Por confirmar"])
-      ]),
-      el("div", { class: "hotel-opt" }, [
-        el("div", null, [
-          el("div", { class: "hotel-name" }, ["Hyatt Centric Mountain View"]),
-          el("div", { class: "hotel-price" }, ["$200–350/noche"])
-        ])
-      ]),
-      el("div", { class: "hotel-opt" }, [
-        el("div", null, [
-          el("div", { class: "hotel-name" }, ["Residence Inn Palo Alto/Mountain View"]),
-          el("div", { class: "hotel-price" }, ["$130–160/noche"])
-        ])
-      ])
-    ])
-  ])));
-
-  grid.appendChild(shell(el("div", { class: "summary-card" }, [
-    el("h2", null, ["Equipaje &amp; dinero"]),
-    summaryRow("Equipaje", "1 carry-on + 1 documentada (compartidas entre los dos)"),
-    summaryRow("Presupuesto total", "$25,000 USD (incluye todo)", true),
-    summaryRow("Estimado real", "~$3,500–4,800 USD para los dos", true),
-    summaryRow("Cash", "~$100–150 USD de colchón, resto tarjeta/Apple Pay"),
-    summaryRow("Transporte", "Default a Caltrain/caminar — Uber solo casos puntuales")
-  ])));
-
-  grid.appendChild(shell(el("div", { class: "summary-card" }, [
-    el("h2", null, ["Qué llevar"]),
-    el("p", { class: "card-desc", style: "margin-bottom:10px;" }, ["Clima fin de sept: SF fresco/neblina 18–21°C día, ~13°C noche. Mountain View más cálido y soleado, 26–29°C día. Checklist completo con casillas en la pestaña Ropa."]),
-    el("div", { class: "pill-list" }, PACKING_ITEMS.map(function (p) { return el("span", { class: "pill" }, [p.label]); }))
-  ])));
-
-  panel.appendChild(grid);
-  return panel;
 }
 
 function makeTabGroup(config) {
@@ -1408,10 +1411,11 @@ function setMode(mode, groups) {
 function boot() {
   validateTripData(TRIP_DATA);
 
-  const tabsTrip = document.getElementById("tabs-trip");
-  const panelsTrip = document.getElementById("panels-trip");
-  const tabsInfo = document.getElementById("tabs-info");
-  const panelsInfo = document.getElementById("panels-info");
+  const root = document.getElementById("trip-app");
+  const tabsTrip = root.querySelector("#tabs-trip");
+  const panelsTrip = root.querySelector("#panels-trip");
+  const tabsInfo = root.querySelector("#tabs-info");
+  const panelsInfo = root.querySelector("#panels-info");
 
   bindExpandDelegate(panelsTrip);
   bindExpandDelegate(panelsInfo);
@@ -1428,8 +1432,7 @@ function boot() {
       { key: "pretrip", label: "Antes de viajar", panel: renderPretripPanel() },
       { key: "documentos", label: "Documentos", panel: renderDocumentosPanel() },
       { key: "ropa", label: "Ropa", panel: renderRopaPanel() },
-      { key: "seguridad", label: "Seguridad", panel: renderSeguridadPanel() },
-      { key: "summary", label: "Resumen", panel: renderSummaryPanel() }
+      { key: "seguridad", label: "Seguridad", panel: renderSeguridadPanel() }
     ]
   });
 

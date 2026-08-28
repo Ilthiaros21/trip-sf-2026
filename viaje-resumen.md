@@ -68,7 +68,7 @@ Bolsa clara maxima 12"x6"x12", o clutch NO clara maxima 4.5"x6.5". Nada de bolsa
 
 ### Viernes 25
 
-Llegada SFO 21:10, traslado a Mountain View (35-45 min, reservado con anticipacion — ver checklist), check-in, noche de asentarse, cena ligera cerca del hotel si hay hambre.
+Salir de casa hacia AICM ~14:00 (pendiente, depende de zona/trafico en CDMX — meta: llegar ~2h50 antes del vuelo, 14:30). Check-in y documentos 14:30. Abordaje ~16:50. Despegue 17:20. Llegada SFO 21:10, traslado a Mountain View (35-45 min, reservado con anticipacion — ver checklist), check-in, noche de asentarse, cena ligera cerca del hotel si hay hambre.
 
 Opciones de cena en Mountain View (Castro St, downtown, ~10-15 min del hotel):
 - Walkable: Zareen's (Pakistani/Indio fusion, casual $15-25), Cascal (tapas Espana/Latam, casual-medio)
@@ -76,9 +76,9 @@ Opciones de cena en Mountain View (Castro St, downtown, ~10-15 min del hotel):
 
 ### Sabado 26 — San Francisco
 
-Dia completo en SF via Caltrain.
+Despertar ~7:00am, Caltrain ~7:45am. Dia completo en SF via Caltrain.
 
-- Ancla: California Academy of Sciences (bloquear 3-4h — acuario, planetario, selva tropical; reservar boleto de planetario al llegar, via QR en el lobby).
+- Ancla: California Academy of Sciences, 9:30am-1:30pm (abre 9:30am lun-sab, verificado — acuario, planetario, selva tropical; reservar boleto de planetario al llegar, via QR en el lobby).
 - Por definir: comida/tiendas/actividad extra. Opciones sobre la mesa: Ferry Building, Golden Gate/Crissy Field, Mission District, Dolores Park, Castro, Twin Peaks, Union Square.
 - Comprar jersey/merch 49ers en la Team Store de Westfield SF (Market & Powell) — hacerlo hoy evita lineas el dia del partido.
 - Cena y regreso a Mountain View.
@@ -92,7 +92,7 @@ No conviene regresar a Mountain View a comer este dia — se pierde 1h+ de Caltr
 
 ### Domingo 27 — Dia de partido
 
-Desayuno completo en Mountain View (no San Jose), Caltrain a Santa Clara/Levi's Stadium, partido 1:05pm (asientos confirmados arriba), salida del estadio caminando, comida en San Jose (Santana Row), regreso a Mountain View.
+Despertar ~8:00am, desayuno completo en Mountain View ~8:30am (no San Jose), Caltrain a Santa Clara/Levi's Stadium ~10:30am, gates abren 11:05am (2h antes del kickoff, verificado — hay revision de bolsa clara, puede haber fila), partido 1:05pm (asientos confirmados arriba), salida del estadio caminando, comida en San Jose (Santana Row), regreso a Mountain View.
 
 Opciones de comida en Santana Row:
 - Walkable: Urban Plates (casual rapido saludable), Oveja Negra (tapas espanolas)
@@ -102,7 +102,7 @@ Santana Row esta de camino, no hace falta desviarse ni forzar volver a Mountain 
 
 ### Lunes 28 — Dia libre
 
-Pao tomo el dia, ambos libres.
+Despertar ~8:00am, Caltrain ~8:45am (menos prisa que sabado, SFMOMA abre 10am). Pao tomo el dia, ambos libres.
 
 - Ancla: SFMOMA (10am-5pm, cerrado martes-miercoles).
 - Por definir: segunda actividad en SF que no se haya cubierto el sabado.
@@ -116,7 +116,7 @@ Mismo criterio que el sabado: no conviene regresar a Mountain View a comer a med
 
 ### Martes 29 — Regreso de Raul
 
-Manana libre, traslado Mountain View a SFO (35-45 min, salir con 2h de margen), vuelo de Raul 14:30, escala en LAX.
+Despertar ~9:00am, checkout hotel ~11:00am (pendiente, confirmar con Aloft cuando este reservado), traslado Mountain View a SFO ~11:45am (35-45 min, meta llegar aeropuerto ~12:30pm), vuelo de Raul 14:30, escala en LAX.
 
 ### Miercoles 30 sept – Jueves 1 oct — Pao sola
 
@@ -136,7 +136,7 @@ Raul ya se fue. Espacio reservado para lo que Pao decida hacer estos dias (pendi
 
 ## App del viaje
 
-Disponible en **https://ilthiaros21.github.io/trip-sf-2026/** — funciona en cualquier celular, sin login, sin instalar nada. Dos modos: **Itinerario** (los días) e **Info práctica** (Antes de viajar, Documentos, Ropa, Seguridad, Resumen). Documentos y Ropa tienen checklist con casillas que se guardan en cada teléfono por separado.
+Disponible en **https://ilthiaros21.github.io/trip-sf-2026/** — funciona en cualquier celular, sin login, sin instalar nada. Dos modos: **Itinerario** (los días, con horas de despertar/salida) e **Info práctica** (Antes de viajar, Documentos, Ropa, Seguridad). Antes de viajar, Documentos y Ropa tienen checklist con casillas que se guardan en cada teléfono por separado. Ya no hay tab de Resumen — su info (hospedaje, presupuesto, alergia, equipaje) vive repartida en las otras pestañas donde tiene más sentido.
 
 ### Seguridad — números a la mano
 - Emergencias EE.UU.: **911**

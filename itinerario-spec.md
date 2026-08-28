@@ -111,5 +111,21 @@ Cualquier cambio de contenido (info nueva, corrección, decisión de Pao, etc.) 
 
 Publicado en GitHub Pages: **https://ilthiaros21.github.io/trip-sf-2026/** (repo `Ilthiaros21/trip-sf-2026`, rama `master`, root). Cada cambio se sube con `git push` y el link se actualiza solo — no depende de login de Claude ni de reenviar archivos. El Artifact (`itinerario-artifact.html`, mismo contenido con scoping `#trip-app`) se mantiene como respaldo secundario, pero GitHub Pages es la vía principal para consultar desde los teléfonos.
 
+## Decisiones — Itinerario granular + quitar Resumen
+
+- **Nav Info práctica ahora 4 tabs** (Resumen eliminado): Antes de viajar · Documentos · Ropa · Seguridad. Su contenido se redistribuyó:
+  - Alergia → prepended en Seguridad (siempre visible, no colapsable, mismo trato que antes).
+  - Hospedaje (comparación 3 opciones) + Presupuesto/dinero/transporte → movidos a Antes de viajar, debajo del checklist.
+  - Equipaje (maletas + resumen de clima) → prepended en Ropa.
+  - Vuelos/Boletos/Traslados (antes resumidos aparte) → ya no se duplican en una vista aparte; sus datos viven directamente en los bloques del día correspondiente (Viernes/Domingo/Martes), interpolados desde `FIXED_DATA` vía template string (no copiados a mano) para no romper la regla de una sola fuente de verdad.
+- **"Antes de viajar" ahora es checklist real** (antes era lista `<ul>` de solo lectura) — mismo componente `.check-row`/localStorage que Documentos y Ropa, agrupado bajo cada `when` como sub-encabezado.
+- **Itinerario mucho más granular**, con horas concretas donde hay dato real que las respalde (verificado, no inventado):
+  - Viernes: agregado bloque "Salir de casa hacia AICM" (pendiente — depende de zona en CDMX, no se inventa un tiempo de traslado) con meta de llegar al aeropuerto ~2h50 antes (14:30) de un vuelo internacional, + check-in 14:30, abordaje ~16:50, despegue 17:20.
+  - Sábado: despertar ~7:00am, Caltrain ~7:45am, Cal Academy 9:30am–1:30pm (hora de apertura real, verificada — [fuente](https://www.calacademy.org/hours-admission)).
+  - Domingo: despertar ~8:00am, desayuno ~8:30am, Caltrain ~10:30am, "Gates abren" 11:05am (gates públicos abren 2h antes del kickoff, verificado — no la cifra de 3.5h que aplica solo a tailgate de parking).
+  - Lunes: despertar ~8:00am, Caltrain ~8:45am (SFMOMA abre 10am, menos prisa que sábado).
+  - Martes: despertar ~9:00am, checkout ~11:00am (marcado pendiente — hora real depende de política del hotel, aún sin reservar), traslado ~11:45am calculado desde el vuelo real (14:30 − 2h buffer − 45min traslado).
+  - Miércoles/Jueves (Pao sola): sin cambios — nada planeado aún, no se inventan horas ahí.
+
 ## Estado
-App con Itinerario + Info práctica (Documentos/Ropa/Seguridad checklists) en producción vía GitHub Pages. Docs sincronizados.
+App con Itinerario granular (horas de despertar/salida calculadas, no inventadas) + Info práctica de 4 tabs (Antes de viajar con checklist, Documentos, Ropa, Seguridad) en producción vía GitHub Pages. Docs sincronizados.
