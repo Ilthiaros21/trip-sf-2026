@@ -947,13 +947,12 @@ const TRIP_DATA = {
       blocks: [
         {
           time: "2:00pm", title: "Salir de casa hacia AICM", status: "confirmed", location: "CDMX → Aeropuerto", cat: "transfer",
-          desc: "Hora ya decidida.",
-          notes: "Deja ~2h50 de margen antes del vuelo (17:20) — estándar para vuelo internacional, con tiempo de sobra para documentos y check-in sin correr."
+          notes: "~2h50 de margen antes del vuelo (17:20) — estándar para internacional."
         },
         {
           time: "14:30", title: "Check-in y documentos", status: "confirmed", location: "AICM", cat: "flight",
           desc: "Aeroméxico, vuelo directo MEX → SFO 17:20.",
-          notes: "Mostrador de Aeroméxico. Pasaporte y visa a la mano (ver checklist de Documentos)."
+          notes: "Mostrador de Aeroméxico. Pasaporte y visa (ver checklist Documentos)."
         },
         {
           time: "~16:50", title: "Abordaje", status: "confirmed", cat: "flight",
@@ -966,18 +965,15 @@ const TRIP_DATA = {
         },
         {
           time: "21:10", title: "Llegada a SFO", status: "confirmed", cat: "flight",
-          desc: "Aeroméxico directo desde MEX.",
-          notes: "Recoger equipaje (1 documentada + 1 carry-on compartidas) antes de decidir el traslado."
+          notes: "1 documentada + 1 carry-on compartidas."
         },
         {
           time: "~22:00", title: "Traslado a Sunnyvale", status: "pending", location: "SFO → Aloft Sunnyvale", cat: "transfer",
-          desc: "Evaluando BART (SFO→Millbrae) + Caltrain (Millbrae→Sunnyvale) vs. Uber directo.",
-          notes: "BART+Caltrain es viable pero migración/aduana de un vuelo internacional puede quitar tiempo. Límite: si no van saliendo de la terminal para las ~22:00, mejor Uber directo (~30–40 min) y no arriesgar el último tren. Pago en BART/Caltrain: tap con tarjeta contactless o Apple/Google Pay — no hace falta Clipper."
+          desc: "BART (SFO→Millbrae) + Caltrain vs. Uber directo.",
+          notes: "Límite ~22:00: si no van saliendo de la terminal para esa hora, Uber directo (~30–40 min). Pago BART/Caltrain: tap con tarjeta contactless o Apple/Google Pay — no hace falta Clipper."
         },
         {
           time: "Noche", title: "Check-in y cena ligera", status: "pending", cat: "food",
-          desc: "Asentarse, cena cerca del hotel si hay hambre.",
-          notes: "No forzar nada — llegan cansados de un vuelo largo.",
           food: {
             label: "Cena cerca del hotel en Sunnyvale (centro, a pasos de la estación)",
             options: [
@@ -993,17 +989,15 @@ const TRIP_DATA = {
       key: "sab26", tab: "Sáb 26", heading: "Sábado 26 sept — San Francisco",
       blocks: [
         {
-          time: "~7:00am", title: "Despertar", status: "confirmed", cat: "rest",
-          desc: "Para llegar a Cal Academy cerca de su apertura, antes de que se llene."
+          time: "~7:00am", title: "Despertar", status: "confirmed", cat: "rest"
         },
         {
-          time: "~7:45am", title: "Caltrain a San Francisco", status: "confirmed", cat: "transfer",
-          desc: "Salida desde Sunnyvale."
+          time: "~7:45am", title: "Caltrain a San Francisco", status: "confirmed", cat: "transfer"
         },
         {
           time: "9:30am–1:30pm", title: "California Academy of Sciences", status: "confirmed", location: "Golden Gate Park", cat: "activity",
           desc: "Acuario, planetario, selva tropical.",
-          notes: "Abre 9:30am (lun–sáb). Boleto anticipado ~$50/adulto — comprar antes de ir.",
+          notes: "Abre 9:30am (lun–sáb). Boleto anticipado ~$50/adulto.",
           food: {
             label: "Comida cerca (Irving St, ~10 min caminando)",
             options: [
@@ -1015,17 +1009,14 @@ const TRIP_DATA = {
         },
         {
           time: "~1:30pm–5pm", title: "Actividad / tiendas — por definir", status: "pending", cat: "activity",
-          desc: "Opciones sobre la mesa: Ferry Building, Golden Gate/Crissy Field, Mission District, Dolores Park, Castro, Twin Peaks, Union Square.",
-          notes: "No conviene regresar a Sunnyvale a comer este día — se pierde tiempo de tren ida-vuelta. Resolver comida en SF mismo."
+          desc: "Opciones: Ferry Building, Golden Gate/Crissy Field, Mission District, Dolores Park, Castro, Twin Peaks, Union Square."
         },
         {
-          time: "Tarde", title: "Comprar jersey/merch 49ers", status: "confirmed", location: "Team Store, Westfield SF (Market & Powell)", cat: "activity",
-          desc: "Hacerlo hoy evita líneas el día del partido."
+          time: "Tarde", title: "Comprar jersey/merch 49ers", status: "confirmed", location: "Team Store, Westfield SF (Market & Powell)", cat: "activity"
         },
         {
           time: "Noche", title: "Cena y regreso a Sunnyvale", status: "pending", cat: "food",
-          desc: "El hotel está a pasos de la estación — sin tramo largo caminando al llegar.",
-          notes: "Esta noche hay concierto de Riley Green en Shoreline Amphitheatre (Mountain View) — una de las razones por las que conviene quedarse en Sunnyvale: los precios de hotel en Mountain View se disparan esa noche por el concierto."
+          notes: "Concierto de Riley Green en Shoreline Amphitheatre (Mountain View) esta noche."
         }
       ]
     },
@@ -1033,22 +1024,19 @@ const TRIP_DATA = {
       key: "dom27", tab: "Dom 27", heading: "Domingo 27 sept — Día de partido",
       blocks: [
         {
-          time: "~8:15am", title: "Despertar", status: "confirmed", cat: "rest",
-          desc: "Día de partido — con tiempo para desayunar bien antes de salir."
+          time: "~8:15am", title: "Despertar", status: "confirmed", cat: "rest"
         },
         {
-          time: "~8:45am", title: "Desayuno completo en Sunnyvale", status: "confirmed", cat: "food",
-          desc: "Ya no en Mountain View — desayunar cerca del hotel antes de salir."
+          time: "~8:45am", title: "Desayuno completo en Sunnyvale", status: "confirmed", cat: "food"
         },
         {
           time: "~10:45am", title: "Caltrain a Santa Clara / Levi's Stadium", status: "confirmed", cat: "transfer",
-          desc: "Trayecto corto — Sunnyvale a Santa Clara son ~8 min en Caltrain.",
-          notes: "Mucho más corto que desde Mountain View — otro punto a favor del cambio de hotel."
+          desc: "Sunnyvale a Santa Clara, ~8 min."
         },
         {
           time: "11:05am", title: "Gates abren", status: "confirmed", location: "Levi's Stadium", cat: "event",
           desc: "Entrada pública abre 2h antes del kickoff.",
-          notes: "Llegar con margen — hay revisión de bolsa clara en la entrada, puede haber fila."
+          notes: "Revisión de bolsa clara en la entrada — puede haber fila."
         },
         {
           time: "1:05 pm", title: "49ers vs Cardinals", status: "confirmed", location: "Levi's Stadium", cat: "event",
@@ -1061,7 +1049,6 @@ const TRIP_DATA = {
         },
         {
           time: "Tarde", title: "Comida en San José", status: "pending", location: "Santana Row", cat: "food",
-          desc: "Al salir del estadio, antes de volver a Sunnyvale.",
           food: {
             label: "Opciones en Santana Row",
             options: [
@@ -1081,8 +1068,7 @@ const TRIP_DATA = {
       blocks: [
         {
           time: "~8:00am", title: "Despertar", status: "confirmed", cat: "rest",
-          desc: "Menos prisa que el sábado.",
-          notes: "Pao pidió este día — 100% libre para los dos, sin planes forzados."
+          notes: "Pao pidió este día — 100% libre para los dos."
         },
         {
           time: "~8:45am", title: "Caltrain a San Francisco", status: "confirmed", cat: "transfer",
@@ -1090,7 +1076,7 @@ const TRIP_DATA = {
         },
         {
           time: "10am–5pm", title: "SFMOMA", status: "confirmed", location: "San Francisco", cat: "activity",
-          desc: "Cerrado martes–miércoles, hoy sí abre.",
+          desc: "Cerrado martes–miércoles.",
           notes: "Boleto anticipado $30/adulto — entrada recomendada 10:00am.",
           food: {
             label: "Comida cerca (Yerba Buena)",
@@ -1102,14 +1088,12 @@ const TRIP_DATA = {
           }
         },
         {
-          time: "Tarde", title: "Segunda actividad en SF — por definir", status: "pending", cat: "activity",
-          desc: "Algo que no se haya cubierto el sábado.",
-          notes: "No conviene regresar a Sunnyvale a mitad de tarde — resolver en SF, volver ya para la cena."
+          time: "Tarde", title: "Segunda actividad en SF — por definir", status: "pending", cat: "activity"
         },
         {
           time: "Noche", title: "Cena con Vaish y su esposo", status: "pending", location: "Sunnyvale", cat: "food",
           desc: "Compañera de trabajo de Pao.",
-          notes: "Hora y lugar exacto sin definir aún. Salvo que cambie el plan, es en Sunnyvale."
+          notes: "Hora y lugar por definir. Ubicación probable: Sunnyvale."
         }
       ]
     },
@@ -1117,18 +1101,17 @@ const TRIP_DATA = {
       key: "mar29", tab: "Mar 29", heading: "Martes 29 sept — Regreso de Raúl",
       blocks: [
         {
-          time: "~9:00am", title: "Despertar", status: "confirmed", cat: "rest",
-          desc: "Mañana libre y corta antes de salir al aeropuerto."
+          time: "~9:00am", title: "Despertar", status: "confirmed", cat: "rest"
         },
         {
           time: "~11:00am", title: "Checkout del hotel", status: "pending", cat: "transfer",
-          desc: "Confirmar hora de checkout con el Aloft Sunnyvale (normalmente 11am–12pm).",
-          notes: "Última noche (lunes a martes) comparten el cuarto de Pao — pagan el cargo de persona extra en su reservación, ya no hotel aparte para Raúl."
+          desc: "Aloft Sunnyvale, normalmente 11am–12pm (confirmar).",
+          notes: "Última noche comparten cuarto de Pao — cargo de persona extra en su reservación."
         },
         {
           time: "~11:45am", title: "Traslado a SFO", status: "confirmed", location: "Sunnyvale → SFO", cat: "transfer",
           desc: "~30–40 min en auto/Uber.",
-          notes: "Meta: llegar al aeropuerto ~12:30pm (2h antes del vuelo de Raúl, 14:30)."
+          notes: "Meta: llegar al aeropuerto ~12:30pm (2h antes del vuelo, 14:30)."
         },
         {
           time: "14:30", title: "Vuelo de Raúl: SFO → LAX → MEX", status: "confirmed", cat: "flight",
@@ -1142,14 +1125,14 @@ const TRIP_DATA = {
       blocks: [
         {
           time: "Todo el día", title: "Por definir", status: "pending", cat: "rest",
-          desc: "Raúl ya se fue. Espacio reservado para lo que Pao decida hacer estos días — pendiente de confirmar con ella."
+          desc: "Pao sola — actividades por confirmar."
         }
       ]
     },
     {
       key: "jue1", tab: "Jue 1", heading: "Jueves 1 oct — Pao sola, día de salida",
       blocks: [
-        { time: "Por definir", title: "Actividad / salida", status: "pending", cat: "rest", desc: "Checar horario de vuelo de Pao cuando se confirme." }
+        { time: "Por definir", title: "Actividad / salida", status: "pending", cat: "rest", desc: "Vuelo de Pao — horario pendiente." }
       ]
     }
   ]
@@ -1278,11 +1261,11 @@ function setupSpineReveal(panelsTripEl) {
     const fill = panelsTripEl.querySelector('.day-panel[data-active="true"] .spine-fill');
     if (!fill) return;
     const rect = fill.getBoundingClientRect();
-    const vh = window.innerHeight || document.documentElement.clientHeight;
-    const total = rect.height + vh;
-    const traveled = vh - rect.top;
-    const pct = total > 0 ? Math.max(0, Math.min(100, (traveled / total) * 100)) : 0;
-    fill.style.setProperty("--reveal", pct.toFixed(1) + "%");
+    if (rect.height <= 0) return;
+    const scrolledPast = Math.max(0, -rect.top);
+    const pct = Math.min(100, (scrolledPast / rect.height) * 100);
+    const floor = 8;
+    fill.style.setProperty("--reveal", Math.max(pct, floor).toFixed(1) + "%");
   }
   function onScroll() {
     if (!ticking) { ticking = true; requestAnimationFrame(update); }
