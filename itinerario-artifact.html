@@ -50,7 +50,8 @@
     --ease-in: cubic-bezier(0.5, 0, 0.75, 0);
     --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
 
-    --dur-instant: 120ms;
+    --dur-instant: 110ms;
+    --dur-settle: 260ms;
     --dur-fast: 220ms;
     --dur-base: 300ms;
     --dur-layout-in: 380ms;
@@ -60,6 +61,11 @@
   }
 
   @property --reveal {
+    syntax: '<percentage>';
+    inherits: false;
+    initial-value: 0%;
+  }
+  @property --progress-frac {
     syntax: '<percentage>';
     inherits: false;
     initial-value: 0%;
@@ -186,9 +192,9 @@
     font-weight: 600;
     font-size: 0.94rem;
     cursor: pointer;
-    transition: background var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out), transform var(--dur-instant) var(--ease-out);
+    transition: background var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out), transform var(--dur-settle) var(--ease-out);
   }
-  #trip-app .mode-btn:active { transform: scale(0.97); }
+  #trip-app .mode-btn:active { transform: scale(0.95); transition: transform var(--dur-instant) var(--ease-out); }
   #trip-app .mode-btn[aria-selected="true"] {
     background: var(--accent);
     color: var(--accent-ink);
@@ -235,9 +241,9 @@
     justify-content: center;
     cursor: pointer;
     white-space: nowrap;
-    transition: background var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out), transform var(--dur-instant) var(--ease-out);
+    transition: background var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out), transform var(--dur-settle) var(--ease-out);
   }
-  #trip-app .tab-btn:active { transform: scale(0.96); }
+  #trip-app .tab-btn:active { transform: scale(0.94); transition: transform var(--dur-instant) var(--ease-out); }
   #trip-app .tab-btn[aria-selected="true"] {
     background: var(--accent);
     border-color: var(--accent);
@@ -345,17 +351,18 @@
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    background: var(--surface);
     border: 2px solid var(--cat-glow);
+    --progress-frac: 0%;
+    background: conic-gradient(var(--cat-glow) var(--progress-frac), transparent var(--progress-frac));
     flex: 0 0 auto;
-    transition: background var(--dur-base) var(--ease-in-out), box-shadow var(--dur-base) var(--ease-in-out);
+    transition: --progress-frac var(--dur-base) var(--ease-in-out), box-shadow var(--dur-base) var(--ease-in-out);
   }
   #trip-app .block[data-progress="ongoing"] .block-dot {
-    background: conic-gradient(var(--cat-glow) 50%, transparent 50%);
+    --progress-frac: 50%;
     box-shadow: 0 0 0 3px color-mix(in oklch, var(--cat-glow) 22%, transparent);
   }
   #trip-app .block[data-progress="done"] .block-dot {
-    background: var(--cat-glow);
+    --progress-frac: 100%;
     box-shadow: 0 0 0 3px color-mix(in oklch, var(--cat-glow) 30%, transparent);
   }
 
@@ -386,7 +393,8 @@
   }
   @supports selector(:has(a)) {
     #trip-app .card:has(.card-head:active) {
-      transform: perspective(1000px) rotateX(0deg) scale(0.995);
+      transform: perspective(1000px) rotateX(0deg) scale(0.97);
+      transition: transform var(--dur-instant) var(--ease-out);
     }
   }
   #trip-app :is(.block[data-status="pending"] .card, .card.is-pending) {
@@ -481,9 +489,12 @@
     text-align: left;
     cursor: pointer;
     min-height: 44px;
+    transition: transform var(--dur-settle) var(--ease-out);
+  }
+  #trip-app .card-head:active {
+    transform: scale(0.97);
     transition: transform var(--dur-instant) var(--ease-out);
   }
-  #trip-app .card-head:active { transform: scale(0.99); }
   #trip-app .card-head:focus-visible {
     outline: 2px solid var(--accent-strong);
     outline-offset: -2px;
@@ -545,6 +556,7 @@
   }
 
   #trip-app .progress-btn {
+    position: relative;
     flex: 0 0 auto;
     width: 26px;
     height: 26px;
@@ -557,9 +569,12 @@
     align-items: center;
     justify-content: center;
     background: none;
-    transition: transform var(--dur-instant) var(--ease-out), background var(--dur-base) var(--ease-in-out);
+    transition: transform var(--dur-settle) var(--ease-out);
   }
-  #trip-app .progress-btn:active { transform: scale(0.85); }
+  #trip-app .progress-btn:active {
+    transform: scale(0.85);
+    transition: transform var(--dur-instant) var(--ease-out);
+  }
   #trip-app .progress-btn:focus-visible {
     outline: 2px solid var(--accent-strong);
     outline-offset: 1px;
@@ -568,25 +583,29 @@
     width: 16px;
     height: 16px;
     border-radius: 50%;
-    border: 2px solid var(--border-strong);
-    background: transparent;
-    transition: background var(--dur-base) var(--ease-in-out), border-color var(--dur-base) var(--ease-in-out);
+    border: 2px solid var(--cat-glow);
+    --progress-frac: 0%;
+    background: conic-gradient(var(--cat-glow) var(--progress-frac), transparent var(--progress-frac));
+    transition: --progress-frac var(--dur-base) var(--ease-in-out);
   }
-  #trip-app .progress-btn[data-progress="ongoing"] .progress-ring {
-    border-color: var(--cat-glow);
-    background: conic-gradient(var(--cat-glow) 50%, transparent 50%);
-  }
-  #trip-app .progress-btn[data-progress="done"] {
-    background: var(--cat-glow);
-  }
-  #trip-app .progress-btn[data-progress="done"] .progress-ring { display: none; }
+  #trip-app .progress-btn[data-progress="ongoing"] .progress-ring { --progress-frac: 50%; }
+  #trip-app .progress-btn[data-progress="done"] .progress-ring { --progress-frac: 100%; }
   #trip-app .progress-check {
-    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
     width: 14px;
     height: 14px;
     color: var(--surface);
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.4);
+    transition: opacity var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
   }
-  #trip-app .progress-btn[data-progress="done"] .progress-check { display: block; }
+  #trip-app .progress-btn[data-progress="done"] .progress-check {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    transition: opacity var(--dur-fast) var(--ease-out) var(--dur-base), transform var(--dur-fast) var(--ease-out) var(--dur-base);
+  }
 
   #trip-app .chevron {
     flex: 0 0 auto;
@@ -791,9 +810,9 @@
     box-shadow: 0 1px 2px oklch(0.3 0.05 265 / 0.04);
     cursor: pointer;
     min-height: 44px;
-    transition: background var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out), transform var(--dur-instant) var(--ease-out);
+    transition: background var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out), transform var(--dur-settle) var(--ease-out);
   }
-  #trip-app .check-row:active { transform: scale(0.995); }
+  #trip-app .check-row:active { transform: scale(0.97); transition: background var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out), transform var(--dur-instant) var(--ease-out); }
   #trip-app .check-box {
     flex: 0 0 auto;
     width: 24px;
@@ -846,9 +865,9 @@
     background: var(--bg-elevated);
     border: 1px solid var(--hairline);
     border-radius: var(--radius-sm);
-    transition: background var(--dur-fast) var(--ease-out), transform var(--dur-instant) var(--ease-out);
+    transition: background var(--dur-fast) var(--ease-out), transform var(--dur-settle) var(--ease-out);
   }
-  #trip-app .contact-link:active { transform: scale(0.97); }
+  #trip-app .contact-link:active { transform: scale(0.95); transition: background var(--dur-fast) var(--ease-out), transform var(--dur-instant) var(--ease-out); }
   #trip-app .contact-link.is-primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 
   #trip-app footer.credits {
@@ -909,7 +928,7 @@
 
   @media (prefers-reduced-motion: reduce) {
     #trip-app :is(.card, .card-body-wrap, .card-body, .chevron, .tab-btn, .card-head, .mode-btn, .check-row, .check-box, .check-box svg, .contact-link,
-      .progress-btn, .progress-ring, .confetti-piece,
+      .progress-btn, .progress-ring, .progress-check, .block-dot, .confetti-piece,
       .day-panel[data-active="true"] > *, .day-panel[data-active="true"] .timeline > *,
       .day-panel[data-active="true"] .checklist > *, .day-panel[data-active="true"] .summary-grid > *,
       .timeline > .block, .timeline > .block .block-time) {
