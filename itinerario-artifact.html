@@ -26,6 +26,7 @@
     --cat-food: oklch(0.75 0.1 345);
     --cat-event: oklch(0.6 0.19 25);
     --cat-rest: oklch(0.75 0.02 270);
+    --cat-glow: var(--cat-rest);
 
     --space-xs: 4px;
     --space-sm: 8px;
@@ -341,17 +342,21 @@
     padding-top: 26px;
   }
   #trip-app .block-dot {
-    width: 11px;
-    height: 11px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
-    background: var(--confirmed);
+    background: var(--surface);
+    border: 2px solid var(--cat-glow);
     flex: 0 0 auto;
-    box-shadow: 0 0 0 3px color-mix(in oklch, var(--confirmed) 18%, transparent);
+    transition: background var(--dur-base) var(--ease-in-out), box-shadow var(--dur-base) var(--ease-in-out);
   }
-  #trip-app .block[data-status="pending"] .block-dot {
-    background: var(--bg);
-    border: 2px solid var(--pending);
-    box-shadow: 0 0 0 3px color-mix(in oklch, var(--pending) 18%, transparent);
+  #trip-app .block[data-progress="ongoing"] .block-dot {
+    background: conic-gradient(var(--cat-glow) 50%, transparent 50%);
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--cat-glow) 22%, transparent);
+  }
+  #trip-app .block[data-progress="done"] .block-dot {
+    background: var(--cat-glow);
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--cat-glow) 30%, transparent);
   }
 
   #trip-app .bezel-shell {
@@ -362,7 +367,6 @@
   }
 
   #trip-app .card {
-    --cat-glow: var(--cat-rest);
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
@@ -389,6 +393,79 @@
     border-style: dashed;
     border-color: var(--pending);
     background: color-mix(in oklch, var(--pending) 6%, var(--surface));
+  }
+
+  @keyframes cardPulse {
+    0%, 100% {
+      transform: perspective(1000px) rotateX(1.5deg) scale(1);
+      box-shadow:
+        inset 0 1px 0 oklch(1 0 0 / 0.75),
+        inset 0 -1px 0 oklch(0.3 0.05 265 / 0.05),
+        0 1px 2px oklch(0.3 0.05 265 / 0.05),
+        0 16px 28px -16px oklch(0.3 0.05 265 / 0.22),
+        0 4px 22px -12px color-mix(in oklch, var(--cat-glow) 45%, transparent),
+        0 0 0 0 color-mix(in oklch, var(--cat-glow) 0%, transparent);
+    }
+    40% {
+      transform: perspective(1000px) rotateX(1.5deg) scale(1.035);
+      box-shadow:
+        inset 0 1px 0 oklch(1 0 0 / 0.75),
+        inset 0 -1px 0 oklch(0.3 0.05 265 / 0.05),
+        0 1px 2px oklch(0.3 0.05 265 / 0.05),
+        0 16px 28px -16px oklch(0.3 0.05 265 / 0.22),
+        0 4px 22px -12px color-mix(in oklch, var(--cat-glow) 45%, transparent),
+        0 0 26px 6px color-mix(in oklch, var(--cat-glow) 55%, transparent);
+    }
+  }
+  #trip-app .card.is-pulsing { animation: cardPulse 550ms var(--ease-out); }
+
+  #trip-app .confetti-layer {
+    position: absolute;
+    left: 28px;
+    right: 0;
+    top: 0;
+    height: 0;
+    overflow: visible;
+    pointer-events: none;
+    z-index: 3;
+  }
+  #trip-app .confetti-piece {
+    position: absolute;
+    top: 22px;
+    width: 6px;
+    height: 6px;
+    background: var(--piece-color, var(--cat-glow));
+    border-radius: 1px;
+    opacity: 0;
+    animation: confettiBurst 750ms var(--ease-out) both;
+    animation-delay: var(--delay, 0ms);
+  }
+  #trip-app .confetti-piece.is-streamer {
+    width: 3px;
+    height: 16px;
+    border-radius: 2px;
+  }
+  @keyframes confettiBurst {
+    0%   { opacity: 0; transform: translate(0, 0) rotate(0deg) scale(0.6); }
+    14%  { opacity: 1; }
+    100% { opacity: 0; transform: translate(var(--dx), calc(var(--dy) + 48px)) rotate(var(--rot)) scale(1); }
+  }
+
+  #trip-app .status-pill {
+    flex: 0 0 auto;
+    font-size: 0.66rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: color-mix(in oklch, var(--confirmed) 18%, transparent);
+    color: var(--confirmed);
+    white-space: nowrap;
+  }
+  #trip-app .status-pill.is-pending {
+    background: color-mix(in oklch, var(--pending) 20%, transparent);
+    color: oklch(0.42 0.13 75);
   }
 
   #trip-app .card-head {
@@ -430,6 +507,22 @@
     padding: 5px 12px;
     line-height: 1.1;
     white-space: nowrap;
+    transition: box-shadow var(--dur-instant) var(--ease-out);
+  }
+  #trip-app .card-head:active .block-time {
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--cat-glow) 40%, transparent);
+  }
+  #trip-app .cat-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--cat-glow);
+    white-space: nowrap;
+    transition: text-shadow var(--dur-instant) var(--ease-out);
+  }
+  #trip-app .card-head:active .cat-label {
+    text-shadow: 0 0 10px color-mix(in oklch, var(--cat-glow) 65%, transparent);
   }
   #trip-app .card-head-spacer { flex: 1 1 auto; }
 
@@ -451,40 +544,55 @@
     line-height: 1.48;
   }
 
-  #trip-app .status-pill {
+  #trip-app .progress-btn {
     flex: 0 0 auto;
-    font-size: 0.66rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    padding: 3px 9px;
-    border-radius: 999px;
-    background: color-mix(in oklch, var(--confirmed) 18%, transparent);
-    color: var(--confirmed);
-    white-space: nowrap;
-  }
-  #trip-app :is(.block[data-status="pending"] .status-pill, .status-pill.is-pending) {
-    background: color-mix(in oklch, var(--pending) 20%, transparent);
-    color: oklch(0.42 0.13 75);
-  }
-
-  #trip-app .chevron-wrap {
-    flex: 0 0 auto;
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
     border-radius: 50%;
-    background: var(--bg-elevated);
-    border: 1px solid var(--hairline);
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform var(--dur-base) var(--ease-in-out), background var(--dur-fast) var(--ease-out);
+    background: none;
+    transition: transform var(--dur-instant) var(--ease-out), background var(--dur-base) var(--ease-in-out);
   }
-  #trip-app .card-head:hover .chevron-wrap { background: color-mix(in oklch, var(--accent) 16%, var(--bg-elevated)); }
-  #trip-app .chevron {
+  #trip-app .progress-btn:active { transform: scale(0.85); }
+  #trip-app .progress-btn:focus-visible {
+    outline: 2px solid var(--accent-strong);
+    outline-offset: 1px;
+  }
+  #trip-app .progress-ring {
     width: 16px;
     height: 16px;
-    color: var(--text-dim);
+    border-radius: 50%;
+    border: 2px solid var(--border-strong);
+    background: transparent;
+    transition: background var(--dur-base) var(--ease-in-out), border-color var(--dur-base) var(--ease-in-out);
+  }
+  #trip-app .progress-btn[data-progress="ongoing"] .progress-ring {
+    border-color: var(--cat-glow);
+    background: conic-gradient(var(--cat-glow) 50%, transparent 50%);
+  }
+  #trip-app .progress-btn[data-progress="done"] {
+    background: var(--cat-glow);
+  }
+  #trip-app .progress-btn[data-progress="done"] .progress-ring { display: none; }
+  #trip-app .progress-check {
+    display: none;
+    width: 14px;
+    height: 14px;
+    color: var(--surface);
+  }
+  #trip-app .progress-btn[data-progress="done"] .progress-check { display: block; }
+
+  #trip-app .chevron {
+    flex: 0 0 auto;
+    width: 14px;
+    height: 14px;
+    color: var(--text-faint);
     transition: transform var(--dur-base) var(--ease-in-out);
   }
   #trip-app .card[data-open="true"] .chevron { transform: rotate(180deg); }
@@ -779,7 +887,6 @@
     #trip-app .day-panel[data-active="true"] .timeline > * { animation: none !important; }
 
     #trip-app .timeline > .block {
-      opacity: 0;
       animation: flapReveal 0.65s var(--ease-entrance) both;
       animation-timeline: view();
       animation-range: entry 0% entry 42%;
@@ -802,6 +909,7 @@
 
   @media (prefers-reduced-motion: reduce) {
     #trip-app :is(.card, .card-body-wrap, .card-body, .chevron, .tab-btn, .card-head, .mode-btn, .check-row, .check-box, .check-box svg, .contact-link,
+      .progress-btn, .progress-ring, .confetti-piece,
       .day-panel[data-active="true"] > *, .day-panel[data-active="true"] .timeline > *,
       .day-panel[data-active="true"] .checklist > *, .day-panel[data-active="true"] .summary-grid > *,
       .timeline > .block, .timeline > .block .block-time) {
@@ -810,6 +918,7 @@
       opacity: 1 !important;
       transform: none !important;
     }
+    #trip-app .confetti-layer { display: none !important; }
     #trip-app .spine-fill {
       --reveal: 100% !important;
       transition: none !important;
@@ -1255,6 +1364,7 @@ function watchSpine(timeline) {
 
 let spineRevealTick = null;
 function setupSpineReveal(panelsTripEl) {
+  const READ_LINE_FRAC = 0.38;
   let ticking = false;
   function update() {
     ticking = false;
@@ -1262,10 +1372,14 @@ function setupSpineReveal(panelsTripEl) {
     if (!fill) return;
     const rect = fill.getBoundingClientRect();
     if (rect.height <= 0) return;
-    const scrolledPast = Math.max(0, -rect.top);
-    const pct = Math.min(100, (scrolledPast / rect.height) * 100);
+    const vh = window.innerHeight || document.documentElement.clientHeight;
+    const readLineY = vh * READ_LINE_FRAC;
+    const pctByReadLine = Math.max(0, Math.min(100, ((readLineY - rect.top) / rect.height) * 100));
+    const maxScroll = Math.max(1, document.documentElement.scrollHeight - vh);
+    const pctByPageBottom = Math.min(100, (window.scrollY / maxScroll) * 100);
     const floor = 8;
-    fill.style.setProperty("--reveal", Math.max(pct, floor).toFixed(1) + "%");
+    const pct = Math.max(pctByReadLine, pctByPageBottom, floor);
+    fill.style.setProperty("--reveal", pct.toFixed(1) + "%");
   }
   function onScroll() {
     if (!ticking) { ticking = true; requestAnimationFrame(update); }
@@ -1294,11 +1408,8 @@ function el(tag, attrs, children) {
 function chevronSvg() {
   const chevron = document.createElement("span");
   chevron.className = "chevron";
-  chevron.innerHTML = '<svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16"><path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  const wrap = document.createElement("span");
-  wrap.className = "chevron-wrap";
-  wrap.appendChild(chevron);
-  return wrap;
+  chevron.innerHTML = '<svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" width="14" height="14"><path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  return chevron;
 }
 
 function warnSvg() {
@@ -1307,8 +1418,91 @@ function warnSvg() {
   return s.firstChild;
 }
 
+function checkSvg() {
+  const s = document.createElement("span");
+  s.innerHTML = '<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="14" height="14"><path d="M2.5 8.5L6 12L13.5 3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  return s.firstChild;
+}
+
 function shell(coreNode, extraClass) {
   return el("div", { class: "bezel-shell" + (extraClass ? " " + extraClass : "") }, [coreNode]);
+}
+
+const PROGRESS_STATES = ["none", "ongoing", "done"];
+function nextProgress(state) {
+  const i = PROGRESS_STATES.indexOf(state);
+  return PROGRESS_STATES[(i + 1) % PROGRESS_STATES.length];
+}
+function loadProgress(id) {
+  try { return localStorage.getItem("trip_progress_" + id) || "none"; }
+  catch (e) { return "none"; }
+}
+function saveProgress(id, state) {
+  try { localStorage.setItem("trip_progress_" + id, state); }
+  catch (e) { /* localStorage unavailable — state just won't persist */ }
+}
+
+const CAT_LABELS = { flight: "Vuelo", transfer: "Transporte", activity: "Actividad", food: "Comida", event: "Evento", rest: "Libre" };
+function categoryLabel(cat) { return CAT_LABELS[cat] || CAT_LABELS.rest; }
+
+function progressBtn() {
+  const btn = el("button", {
+    class: "progress-btn", type: "button", "data-progress": "none",
+    "aria-label": "Marcar progreso"
+  }, [
+    el("span", { class: "progress-ring" }),
+    checkSvg()
+  ]);
+  btn.querySelector("svg").classList.add("progress-check");
+  return btn;
+}
+
+function applyProgress(blockEl, state) {
+  blockEl.dataset.progress = state;
+  const btn = blockEl.querySelector(".progress-btn");
+  if (btn) btn.dataset.progress = state;
+}
+
+function prefersReducedMotion() {
+  return typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function pulseCard(card) {
+  if (prefersReducedMotion()) return;
+  card.classList.remove("is-pulsing");
+  void card.offsetWidth;
+  card.classList.add("is-pulsing");
+  card.addEventListener("animationend", function handler(e) {
+    if (e.animationName === "cardPulse") {
+      card.classList.remove("is-pulsing");
+      card.removeEventListener("animationend", handler);
+    }
+  });
+}
+
+const CONFETTI_COLORS = ["var(--cat-flight)", "var(--cat-activity)", "var(--cat-food)", "var(--cat-event)", "var(--cat-transfer)"];
+function burstConfetti(blockEl) {
+  if (prefersReducedMotion()) return;
+  const layer = el("div", { class: "confetti-layer", "aria-hidden": "true" });
+  const count = 16;
+  for (let i = 0; i < count; i++) {
+    const isStreamer = i % 5 === 0;
+    const piece = el("span", { class: "confetti-piece" + (isStreamer ? " is-streamer" : "") });
+    const angle = Math.random() * 140 - 70;
+    const dist = 40 + Math.random() * 55;
+    const rad = (angle * Math.PI) / 180;
+    const dx = Math.sin(rad) * dist;
+    const dy = -Math.abs(Math.cos(rad) * dist) - 10;
+    piece.style.setProperty("--dx", dx.toFixed(0) + "px");
+    piece.style.setProperty("--dy", dy.toFixed(0) + "px");
+    piece.style.setProperty("--rot", (Math.random() * 520 - 260).toFixed(0) + "deg");
+    piece.style.setProperty("--delay", (Math.random() * 90).toFixed(0) + "ms");
+    piece.style.setProperty("--piece-color", CONFETTI_COLORS[i % CONFETTI_COLORS.length]);
+    piece.style.left = (40 + Math.random() * 20).toFixed(0) + "%";
+    layer.appendChild(piece);
+  }
+  blockEl.appendChild(layer);
+  setTimeout(function () { layer.remove(); }, 1000);
 }
 
 function renderFoodOptions(food) {
@@ -1327,15 +1521,16 @@ function renderFoodOptions(food) {
   return wrap;
 }
 
-function renderBlock(block) {
+function renderBlock(block, id) {
   const status = block.status === "pending" ? "pending" : "confirmed";
   const hasBody = block.notes || block.food || block.warn;
   const cat = block.cat || "rest";
 
   const headTop = el("div", { class: "card-head-top" }, [
     el("span", { class: "block-time" }, [block.time]),
+    el("span", { class: "cat-label" }, [categoryLabel(cat)]),
     el("span", { class: "card-head-spacer" }),
-    el("span", { class: "status-pill" }, [status === "pending" ? "Por confirmar" : "Confirmado"])
+    progressBtn()
   ]);
   if (hasBody) headTop.appendChild(chevronSvg());
 
@@ -1345,10 +1540,9 @@ function renderBlock(block) {
     block.desc ? el("div", { class: "card-desc" }, [block.desc]) : null
   ]);
 
-  const head = el("button", { class: "card-head", type: "button", "aria-expanded": "false" }, [headTop, titleGroup]);
+  const head = el("div", { class: "card-head", role: "button", tabindex: "0", "aria-expanded": "false" }, [headTop, titleGroup]);
 
   const card = el("div", { class: "card", "data-open": "false" }, [head]);
-  card.style.setProperty("--cat-glow", categoryColorVar(cat));
 
   if (hasBody) {
     const bodyContent = el("div", { class: "card-body" });
@@ -1370,25 +1564,58 @@ function renderBlock(block) {
     el("div", { class: "block-dot" })
   ]);
 
-  return el("article", { class: "block", "data-status": status, "data-cat": cat }, [dotCol, shell(card)]);
+  const blockEl = el("article", {
+    class: "block", "data-status": status, "data-cat": cat, "data-id": id, "data-progress": "none"
+  }, [dotCol, shell(card)]);
+  blockEl.style.setProperty("--cat-glow", categoryColorVar(cat));
+  return blockEl;
 }
 
 function bindExpandDelegate(container) {
-  container.addEventListener("click", function (event) {
-    const head = event.target.closest(".card-head");
-    if (!head || !container.contains(head)) return;
+  function toggle(head) {
     const card = head.closest(".card");
     if (!card || !card.querySelector(".card-body-wrap")) return;
     const open = card.getAttribute("data-open") === "true";
     card.setAttribute("data-open", open ? "false" : "true");
     head.setAttribute("aria-expanded", open ? "false" : "true");
+  }
+  container.addEventListener("click", function (event) {
+    if (event.target.closest(".progress-btn")) return;
+    const head = event.target.closest(".card-head");
+    if (!head || !container.contains(head)) return;
+    toggle(head);
+  });
+  container.addEventListener("keydown", function (event) {
+    if (event.key !== " " && event.key !== "Enter") return;
+    if (event.target.closest(".progress-btn")) return;
+    const head = event.target.closest(".card-head");
+    if (!head || !container.contains(head)) return;
+    event.preventDefault();
+    toggle(head);
   });
 }
 
-function checkSvg() {
-  const s = document.createElement("span");
-  s.innerHTML = '<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="14" height="14"><path d="M2.5 8.5L6 12L13.5 3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  return s.firstChild;
+function bindProgressDelegate(container) {
+  container.addEventListener("click", function (event) {
+    const btn = event.target.closest(".progress-btn");
+    if (!btn || !container.contains(btn)) return;
+    const blockEl = btn.closest(".block");
+    if (!blockEl) return;
+    const current = blockEl.dataset.progress || "none";
+    const next = nextProgress(current);
+    applyProgress(blockEl, next);
+    saveProgress(blockEl.dataset.id, next);
+    const card = blockEl.querySelector(".card");
+    if (next === "ongoing" && card) pulseCard(card);
+    if (next === "done") burstConfetti(blockEl);
+  });
+}
+
+function hydrateProgress(root) {
+  root.querySelectorAll(".block[data-id]").forEach(function (blockEl) {
+    const state = loadProgress(blockEl.dataset.id);
+    if (state !== "none") applyProgress(blockEl, state);
+  });
 }
 
 function renderCheckRow(item, storageKey) {
@@ -1448,7 +1675,7 @@ function renderDayPanel(day) {
     el("div", { class: "spine-fill" })
   ]);
   timeline.appendChild(spine);
-  day.blocks.forEach(function (b) { timeline.appendChild(renderBlock(b)); });
+  day.blocks.forEach(function (b, i) { timeline.appendChild(renderBlock(b, day.key + "-" + i)); });
   panel.appendChild(timeline);
   watchSpine(timeline);
   return panel;
@@ -1652,6 +1879,7 @@ function boot() {
 
   bindExpandDelegate(panelsTrip);
   bindExpandDelegate(panelsInfo);
+  bindProgressDelegate(panelsTrip);
   bindChecklistDelegate(panelsInfo);
 
   const tripGroup = makeTabGroup({
@@ -1670,6 +1898,7 @@ function boot() {
   });
 
   hydrateChecklists(panelsInfo);
+  hydrateProgress(panelsTrip);
   setupSpineReveal(panelsTrip);
 
   activateInGroup(tripGroup, TRIP_DATA.days[0].key);
