@@ -6,26 +6,32 @@
 <title>SF Bay Area — Raúl &amp; Pao</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400..700&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    /* Paleta cálida y clara — Darlington (sage) / Beeswax (ámbar) / Grenadine (naranja-rojo) / Cafe Latte (café). Nada de negro, nada de mostaza. */
-    --bg: oklch(0.965 0.014 95);
-    --bg-elevated: oklch(0.91 0.028 145);
-    --surface: oklch(0.995 0.006 90);
-    --surface-solid: oklch(0.98 0.008 90);
-    --border: oklch(0.45 0.04 60 / 0.22);
-    --border-strong: oklch(0.4 0.045 60 / 0.35);
-    --hairline: oklch(0.3 0.03 60 / 0.09);
-    --text: oklch(0.3 0.035 55);
-    --text-dim: oklch(0.46 0.04 55);
-    --text-faint: oklch(0.5 0.032 60);
-    --accent: oklch(0.55 0.185 34);
-    --accent-strong: oklch(0.48 0.2 31);
-    --accent-ink: oklch(0.99 0.008 85);
-    --confirmed: oklch(0.4 0.1 150);
-    --pending: oklch(0.46 0.14 65);
-    --danger: oklch(0.48 0.19 22);
+    /* Paleta pastel fría — lavanda/periwinkle de fondo, azul/ámbar/rosa como
+       flujo decorativo del timeline. Pivote total desde la paleta cálida anterior. */
+    --bg: oklch(0.94 0.018 280);
+    --bg-elevated: oklch(0.895 0.026 276);
+    --surface: oklch(0.995 0.005 275);
+    --surface-solid: oklch(0.985 0.007 275);
+    --border: oklch(0.5 0.03 275 / 0.16);
+    --border-strong: oklch(0.45 0.035 275 / 0.28);
+    --hairline: oklch(0.25 0.03 275 / 0.08);
+    --text: oklch(0.27 0.045 265);
+    --text-dim: oklch(0.44 0.04 265);
+    --text-faint: oklch(0.56 0.032 265);
+    --accent: oklch(0.55 0.18 265);
+    --accent-strong: oklch(0.47 0.19 262);
+    --accent-ink: oklch(0.99 0.006 265);
+    --confirmed: oklch(0.4 0.1 155);
+    --pending: oklch(0.68 0.14 75);
+    --danger: oklch(0.55 0.19 20);
+
+    /* flujo decorativo del timeline — no reemplaza el color semántico de los dots */
+    --spine-dawn: oklch(0.72 0.11 240);
+    --spine-noon: oklch(0.8 0.11 75);
+    --spine-dusk: oklch(0.75 0.1 345);
 
     --space-xs: 4px;
     --space-sm: 8px;
@@ -35,16 +41,17 @@
     --space-2xl: 32px;
     --space-3xl: 48px;
 
-    --radius-shell: 28px;
-    --radius-lg: 20px;
-    --radius-md: 16px;
-    --radius-sm: 12px;
+    --radius-shell: 30px;
+    --radius-lg: 22px;
+    --radius-md: 18px;
+    --radius-sm: 14px;
 
-    --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    --font-display: "Bricolage Grotesque", -apple-system, sans-serif;
-    --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    --font-body: "Hanken Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-display: "Familjen Grotesk", -apple-system, sans-serif;
+    --font-mono: "Hanken Grotesk", -apple-system, sans-serif;
 
-    --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+    /* expo-out refinado — deceleración "líquida", sin rebote, consistente en toda la app */
+    --ease-spring: cubic-bezier(0.19, 1, 0.22, 1);
 
     color-scheme: light;
   }
@@ -68,44 +75,63 @@
     padding-bottom: env(safe-area-inset-bottom);
   }
 
-  /* Warm ambient washes — soft sage/beeswax/terracotta over the cream ground, no dark orbs */
+  /* Fondo pastel con manchas suaves azul/ámbar/rosa — eco del wave de la referencia, sin asset externo */
   body::before {
     content: "";
     position: fixed;
     inset: 0;
     background:
-      radial-gradient(900px 500px at 12% -8%, oklch(0.88 0.05 150 / 0.55), transparent 60%),
-      radial-gradient(700px 460px at 105% 4%, oklch(0.85 0.08 70 / 0.4), transparent 55%),
-      radial-gradient(600px 700px at 50% 120%, oklch(0.82 0.08 40 / 0.28), transparent 60%);
+      radial-gradient(720px 520px at 102% -6%, oklch(0.82 0.09 240 / 0.55), transparent 60%),
+      radial-gradient(640px 480px at 108% 58%, oklch(0.85 0.09 80 / 0.35), transparent 55%),
+      radial-gradient(600px 600px at -12% 92%, oklch(0.82 0.09 345 / 0.32), transparent 60%);
     pointer-events: none;
     z-index: 0;
   }
 
   /* ---------------------------------------------------------------
-     App bar: title + mode switch + active nav, ALL ONE sticky unit.
-     (Two independent sticky siblings both at top:0 would fight for
-     the same band and overlap — one unit avoids that entirely.)
+     App bar: liquid glass — la única superficie con vidrio de verdad.
+     Blur + saturate + highlight especular arriba + borde inferior que
+     refracta un filo de luz. Las tarjetas de contenido NO llevan blur.
      --------------------------------------------------------------- */
   .app-bar {
     position: sticky;
     top: 0;
     z-index: 20;
     padding: calc(var(--space-xl) + env(safe-area-inset-top)) var(--space-lg) var(--space-md);
-    background: color-mix(in oklch, var(--bg) 80%, transparent);
+    background: color-mix(in oklch, var(--bg) 58%, transparent);
+    isolation: isolate;
+  }
+  .app-bar::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(165deg, oklch(1 0 0 / 0.32), transparent 42%);
+    pointer-events: none;
+    z-index: -1;
+  }
+  .app-bar::after {
+    content: "";
+    position: absolute;
+    left: var(--space-lg);
+    right: var(--space-lg);
+    bottom: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, oklch(1 0 0 / 0.55), transparent);
+    pointer-events: none;
   }
   @supports (backdrop-filter: blur(1px)) {
-    .app-bar { backdrop-filter: blur(28px) saturate(160%); }
+    .app-bar { backdrop-filter: blur(30px) saturate(170%); }
   }
 
   .eyebrow {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    font-family: var(--font-mono);
-    font-size: 0.62rem;
+    font-family: var(--font-body);
+    font-size: 0.68rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.16em;
     color: var(--accent-strong);
     background: color-mix(in oklch, var(--accent) 14%, transparent);
     border: 1px solid color-mix(in oklch, var(--accent) 30%, transparent);
@@ -124,28 +150,31 @@
 
   .trip-title {
     font-family: var(--font-display);
-    font-size: 1.7rem;
+    font-size: 1.9rem;
     font-weight: 700;
-    letter-spacing: -0.025em;
+    letter-spacing: -0.02em;
     text-wrap: balance;
     margin: 0 0 3px;
   }
   .trip-sub {
-    font-size: 0.85rem;
+    font-size: 0.88rem;
     color: var(--text-dim);
     margin: 0 0 var(--space-md);
   }
 
-  /* Mode switch — segmented control, two big targets */
   .mode-switch {
     display: flex;
     gap: 4px;
     padding: 4px;
     border-radius: 999px;
     border: 1px solid var(--hairline);
-    background: color-mix(in oklch, var(--bg-elevated) 72%, transparent);
-    box-shadow: 0 8px 30px -12px oklch(0.3 0.03 60 / 0.18), inset 0 1px 0 var(--hairline);
+    background: color-mix(in oklch, var(--bg-elevated) 62%, transparent);
+    box-shadow: 0 8px 30px -14px oklch(0.3 0.05 265 / 0.35), inset 0 1px 0 oklch(1 0 0 / 0.6);
     margin-bottom: var(--space-sm);
+    position: relative;
+  }
+  @supports (backdrop-filter: blur(1px)) {
+    .mode-switch { backdrop-filter: blur(18px) saturate(160%); }
   }
   .mode-btn {
     flex: 1;
@@ -156,22 +185,21 @@
     color: var(--text-dim);
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: 0.92rem;
+    font-size: 0.94rem;
     cursor: pointer;
-    transition: background 0.3s var(--ease-spring), color 0.3s var(--ease-spring), transform 0.3s var(--ease-spring);
+    transition: background 0.4s var(--ease-spring), color 0.4s var(--ease-spring), transform 0.3s var(--ease-spring);
   }
   .mode-btn:active { transform: scale(0.97); }
   .mode-btn[aria-selected="true"] {
     background: var(--accent);
     color: var(--accent-ink);
-    box-shadow: 0 4px 14px -4px color-mix(in oklch, var(--accent) 60%, transparent);
+    box-shadow: 0 4px 16px -4px color-mix(in oklch, var(--accent) 65%, transparent);
   }
   .mode-btn:focus-visible {
     outline: 2px solid var(--accent-strong);
     outline-offset: 2px;
   }
 
-  /* Fluid island nav — detached floating glass pill, not edge-to-edge */
   nav.tabs {
     display: flex;
     gap: var(--space-xs);
@@ -180,14 +208,14 @@
     padding: 6px;
     border-radius: 999px;
     border: 1px solid var(--hairline);
-    background: color-mix(in oklch, var(--bg-elevated) 72%, transparent);
+    background: color-mix(in oklch, var(--bg-elevated) 62%, transparent);
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-x: contain;
-    box-shadow: 0 8px 30px -12px oklch(0.3 0.03 60 / 0.18), inset 0 1px 0 var(--hairline);
+    box-shadow: 0 8px 30px -14px oklch(0.3 0.05 265 / 0.35), inset 0 1px 0 oklch(1 0 0 / 0.6);
   }
   @supports (backdrop-filter: blur(1px)) {
-    nav.tabs { backdrop-filter: blur(22px) saturate(150%); }
+    nav.tabs { backdrop-filter: blur(18px) saturate(160%); }
   }
   nav.tabs::-webkit-scrollbar { display: none; }
   nav.tabs[hidden] { display: none; }
@@ -201,21 +229,21 @@
     background: transparent;
     color: var(--text-dim);
     font-family: var(--font-body);
-    font-size: 0.88rem;
     font-weight: 600;
+    font-size: 0.89rem;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     white-space: nowrap;
-    transition: background 0.3s var(--ease-spring), color 0.3s var(--ease-spring), transform 0.3s var(--ease-spring);
+    transition: background 0.4s var(--ease-spring), color 0.4s var(--ease-spring), transform 0.3s var(--ease-spring);
   }
   .tab-btn:active { transform: scale(0.96); }
   .tab-btn[aria-selected="true"] {
     background: var(--accent);
     border-color: var(--accent);
     color: var(--accent-ink);
-    box-shadow: 0 4px 14px -4px color-mix(in oklch, var(--accent) 60%, transparent);
+    box-shadow: 0 4px 16px -4px color-mix(in oklch, var(--accent) 65%, transparent);
   }
   .tab-btn:focus-visible {
     outline: 2px solid var(--accent-strong);
@@ -237,7 +265,7 @@
 
   .day-heading {
     font-family: var(--font-display);
-    font-size: 1.2rem;
+    font-size: 1.28rem;
     font-weight: 600;
     color: var(--text);
     letter-spacing: -0.01em;
@@ -246,17 +274,17 @@
   .day-heading:first-child { margin-top: var(--space-lg); }
 
   .day-note {
-    font-size: 0.85rem;
+    font-size: 0.87rem;
     color: var(--text-faint);
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     padding: var(--space-md);
     margin-bottom: var(--space-lg);
-    line-height: 1.5;
+    line-height: 1.55;
+    box-shadow: 0 1px 3px oklch(0.3 0.05 265 / 0.05);
   }
 
-  /* timeline */
   .timeline {
     display: flex;
     flex-direction: column;
@@ -271,53 +299,50 @@
     position: relative;
   }
 
-  /* slim spine — just the dot + connecting line, no time text (time lives in the card now) */
   .block-time-col {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 22px;
+    padding-top: 26px;
   }
   .block-dot {
-    width: 10px;
-    height: 10px;
+    width: 11px;
+    height: 11px;
     border-radius: 50%;
     background: var(--confirmed);
     flex: 0 0 auto;
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--confirmed) 18%, transparent);
   }
   .block[data-status="pending"] .block-dot {
-    background: transparent;
+    background: var(--bg);
     border: 2px solid var(--pending);
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--pending) 18%, transparent);
   }
   .block-line {
-    width: 1px;
+    width: 2px;
     flex: 1;
     background: var(--border);
     margin-top: var(--space-sm);
+    border-radius: 2px;
   }
   .block:last-child .block-line { display: none; }
 
-  /* Double-bezel: outer machined shell + inner glass core */
+  /* la doble-cápsula queda neutralizada: el shell es solo un envoltorio de paso,
+     la tarjeta interna lleva toda la superficie (soft shadow, no vidrio) */
   .bezel-shell {
-    background: color-mix(in oklch, var(--bg-elevated) 55%, transparent);
-    border: 1px solid var(--hairline);
-    border-radius: var(--radius-shell);
-    padding: 5px;
-  }
-  .block[data-status="pending"] .bezel-shell,
-  .bezel-shell.is-pending {
-    border-color: color-mix(in oklch, var(--pending) 35%, transparent);
+    background: none;
+    border: none;
+    padding: 0;
+    border-radius: 0;
   }
 
   .card {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    box-shadow: inset 0 1px 0 var(--hairline);
+    box-shadow: 0 1px 2px oklch(0.3 0.05 265 / 0.04), 0 10px 24px -12px oklch(0.3 0.05 265 / 0.14);
     overflow: hidden;
-  }
-  @supports (backdrop-filter: blur(1px)) {
-    .card { backdrop-filter: blur(18px); }
+    transition: box-shadow 0.4s var(--ease-spring);
   }
   .block[data-status="pending"] .card,
   .card.is-pending {
@@ -347,28 +372,31 @@
     outline-offset: -2px;
   }
 
-  /* board-line: hora grande tipo tablero de salidas + status + chevron, todo en una fila */
   .card-head-top {
     display: flex;
     align-items: center;
     gap: var(--space-sm);
-    perspective: 400px;
+    perspective: 500px;
   }
   .block-time {
-    font-family: var(--font-mono);
+    font-family: var(--font-body);
     font-variant-numeric: tabular-nums;
-    font-size: 1.05rem;
+    font-size: 0.8rem;
     font-weight: 700;
     letter-spacing: 0.01em;
-    color: var(--text);
-    line-height: 1;
+    color: var(--accent-strong);
+    background: color-mix(in oklch, var(--accent) 8%, var(--bg-elevated));
+    border-radius: 999px;
+    padding: 5px 12px;
+    line-height: 1.1;
+    white-space: nowrap;
   }
   .card-head-spacer { flex: 1 1 auto; }
 
   .card-title-group { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
   .card-title {
     font-family: var(--font-display);
-    font-size: 1.05rem;
+    font-size: 1.08rem;
     font-weight: 600;
     letter-spacing: -0.01em;
   }
@@ -377,31 +405,30 @@
     color: var(--text-faint);
   }
   .card-desc {
-    font-size: 0.85rem;
+    font-size: 0.86rem;
     color: var(--text-dim);
     margin-top: 2px;
-    line-height: 1.45;
+    line-height: 1.48;
   }
 
   .status-pill {
     flex: 0 0 auto;
-    font-size: 0.68rem;
+    font-size: 0.66rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.04em;
     padding: 3px 9px;
     border-radius: 999px;
-    background: color-mix(in oklch, var(--confirmed) 20%, transparent);
+    background: color-mix(in oklch, var(--confirmed) 18%, transparent);
     color: var(--confirmed);
     white-space: nowrap;
   }
   .block[data-status="pending"] .status-pill,
   .status-pill.is-pending {
-    background: color-mix(in oklch, var(--pending) 22%, transparent);
-    color: var(--pending);
+    background: color-mix(in oklch, var(--pending) 20%, transparent);
+    color: oklch(0.42 0.13 75);
   }
 
-  /* button-in-button: chevron nested in its own pill, never bare */
   .chevron-wrap {
     flex: 0 0 auto;
     width: 28px;
@@ -419,41 +446,47 @@
     width: 16px;
     height: 16px;
     color: var(--text-dim);
-    transition: transform 0.35s var(--ease-spring);
+    transition: transform 0.4s var(--ease-spring);
   }
   .card[data-open="true"] .chevron { transform: rotate(180deg); }
 
   .card-body-wrap {
     display: grid;
     grid-template-rows: 0fr;
-    transition: grid-template-rows 0.4s var(--ease-spring);
+    transition: grid-template-rows 0.45s var(--ease-spring);
   }
   .card[data-open="true"] .card-body-wrap { grid-template-rows: 1fr; }
   .card-body-inner { overflow: hidden; }
   .card-body {
     padding: 0 var(--space-lg) var(--space-lg);
-    font-size: 0.85rem;
+    font-size: 0.86rem;
     color: var(--text-dim);
-    line-height: 1.55;
+    line-height: 1.58;
     border-top: 1px solid var(--hairline);
     margin-top: var(--space-sm);
     padding-top: var(--space-md);
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity 0.35s var(--ease-spring) 0.08s, transform 0.35s var(--ease-spring) 0.08s;
   }
+  .card[data-open="true"] .card-body { opacity: 1; transform: translateY(0); }
   .card-body p { margin: 0 0 var(--space-sm); }
   .card-body p:last-child { margin-bottom: 0; }
 
   .badge-warn {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
     font-size: 0.72rem;
     font-weight: 700;
     color: var(--danger);
-    background: color-mix(in oklch, var(--danger) 16%, transparent);
-    border-radius: 6px;
-    padding: 2px 8px;
+    background: color-mix(in oklch, var(--danger) 14%, transparent);
+    border-radius: 999px;
+    padding: 3px 10px 3px 8px;
     margin-bottom: var(--space-sm);
   }
+  .badge-warn svg { width: 12px; height: 12px; flex: 0 0 auto; }
 
-  /* food options widget */
   .food-options {
     margin-top: var(--space-md);
     display: flex;
@@ -481,7 +514,7 @@
   .food-opt-desc { font-size: 0.76rem; color: var(--text-faint); margin-top: 1px; }
   .food-tag {
     flex: 0 0 auto;
-    font-size: 0.66rem;
+    font-size: 0.64rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.03em;
@@ -489,49 +522,44 @@
     border-radius: 999px;
   }
   .food-tag[data-kind="walk"] {
-    background: color-mix(in oklch, var(--confirmed) 18%, transparent);
+    background: color-mix(in oklch, var(--confirmed) 8%, transparent);
     color: var(--confirmed);
   }
   .food-tag[data-kind="move"] {
-    background: color-mix(in oklch, var(--accent) 12%, transparent);
+    background: color-mix(in oklch, var(--accent) 7%, transparent);
     color: var(--accent-strong);
   }
 
-  /* pretrip checklist grouping label — sits above its own .checklist block */
   .pretrip-when {
     display: block;
-    font-family: var(--font-mono);
+    font-family: var(--font-body);
     font-size: 0.72rem;
     font-weight: 700;
     color: var(--accent-strong);
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.06em;
     margin: var(--space-xl) 0 var(--space-sm);
   }
   .pretrip-when:first-of-type { margin-top: 0; }
 
-  /* summary tab */
   .summary-grid { display: flex; flex-direction: column; gap: var(--space-xl); }
   .summary-card {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    box-shadow: inset 0 1px 0 var(--hairline);
+    box-shadow: 0 1px 2px oklch(0.3 0.05 265 / 0.04), 0 10px 24px -12px oklch(0.3 0.05 265 / 0.14);
     padding: var(--space-xl) var(--space-lg);
   }
-  @supports (backdrop-filter: blur(1px)) {
-    .summary-card { backdrop-filter: blur(18px); }
-  }
   .summary-card h2 {
-    font-family: var(--font-mono);
+    font-family: var(--font-body);
     display: inline-block;
-    font-size: 0.68rem;
+    font-size: 0.66rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.1em;
     color: var(--accent-strong);
-    background: color-mix(in oklch, var(--accent) 14%, transparent);
-    border: 1px solid color-mix(in oklch, var(--accent) 28%, transparent);
+    background: color-mix(in oklch, var(--accent) 13%, transparent);
+    border: 1px solid color-mix(in oklch, var(--accent) 26%, transparent);
     border-radius: 999px;
     padding: 4px 11px;
     margin: 0 0 var(--space-lg);
@@ -551,16 +579,16 @@
     letter-spacing: 0.04em;
   }
   .summary-row-value { font-size: 0.9rem; font-weight: 600; line-height: 1.4; }
-  .summary-row-value.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 0.86rem; }
+  .summary-row-value.mono { font-variant-numeric: tabular-nums; }
 
   .allergy-card {
-    background: color-mix(in oklch, var(--danger) 12%, var(--surface));
-    border: 1px solid color-mix(in oklch, var(--danger) 45%, var(--border));
+    background: color-mix(in oklch, var(--danger) 10%, var(--surface));
+    border: 1px solid color-mix(in oklch, var(--danger) 40%, var(--border));
   }
   .allergy-card h2 {
     color: var(--danger);
-    background: color-mix(in oklch, var(--danger) 18%, transparent);
-    border-color: color-mix(in oklch, var(--danger) 40%, transparent);
+    background: color-mix(in oklch, var(--danger) 16%, transparent);
+    border-color: color-mix(in oklch, var(--danger) 36%, transparent);
   }
   .allergy-card p { margin: 0; font-size: 0.9rem; line-height: 1.5; }
 
@@ -576,26 +604,23 @@
   .hotel-options { display: flex; flex-direction: column; gap: var(--space-sm); }
   .hotel-opt {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: var(--space-sm);
+    flex-direction: column;
+    gap: 2px;
     background: var(--bg-elevated);
     border: 1px solid var(--hairline);
     border-radius: var(--radius-sm);
     padding: var(--space-sm) var(--space-md);
     font-size: 0.85rem;
   }
+  .hotel-opt-row { display: flex; justify-content: space-between; align-items: center; gap: var(--space-sm); }
   .hotel-opt[data-picked="true"] {
     border-color: var(--accent);
-    background: color-mix(in oklch, var(--accent) 10%, var(--bg-elevated));
+    background: color-mix(in oklch, var(--accent) 9%, var(--bg-elevated));
   }
   .hotel-name { font-weight: 600; }
   .hotel-price { color: var(--text-faint); font-size: 0.78rem; }
+  .hotel-opt-note { font-size: 0.76rem; color: var(--text-faint); line-height: 1.4; margin-top: 2px; }
 
-  /* ---------------------------------------------------------------
-     Checklists (Documentos, Ropa) — real toggle state, per-device
-     via localStorage. Still no server, still no cross-device sync.
-     --------------------------------------------------------------- */
   .checklist { display: flex; flex-direction: column; gap: var(--space-sm); margin-bottom: var(--space-lg); }
   .check-row {
     display: flex;
@@ -605,10 +630,10 @@
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
-    box-shadow: inset 0 1px 0 var(--hairline);
+    box-shadow: 0 1px 2px oklch(0.3 0.05 265 / 0.04);
     cursor: pointer;
     min-height: 44px;
-    transition: background 0.25s var(--ease-spring);
+    transition: background 0.3s var(--ease-spring), box-shadow 0.3s var(--ease-spring);
   }
   .check-row:active { transform: scale(0.995); }
   .check-box {
@@ -622,25 +647,25 @@
     align-items: center;
     justify-content: center;
     color: transparent;
-    transition: background 0.25s var(--ease-spring), border-color 0.25s var(--ease-spring), color 0.15s var(--ease-spring);
+    transition: background 0.3s var(--ease-spring), border-color 0.3s var(--ease-spring), color 0.2s var(--ease-spring), transform 0.3s var(--ease-spring);
   }
   .check-row.is-checked .check-box {
     background: var(--confirmed);
     border-color: var(--confirmed);
-    color: var(--bg);
+    color: var(--surface);
+    transform: scale(1.05);
   }
-  .check-label { font-size: 0.92rem; line-height: 1.4; transition: color 0.25s ease, opacity 0.25s ease; }
-  .check-row.is-checked .check-label { color: var(--text-faint); text-decoration: line-through; opacity: 0.75; }
+  .check-label { font-size: 0.92rem; line-height: 1.4; transition: color 0.3s ease, opacity 0.3s ease; }
+  .check-row.is-checked .check-label { color: var(--text-faint); text-decoration: line-through; opacity: 0.7; }
 
   .ropa-columns { display: flex; flex-direction: column; gap: var(--space-2xl); }
   .ropa-col-title {
     font-family: var(--font-display);
-    font-size: 1rem;
+    font-size: 1.02rem;
     font-weight: 600;
     margin: 0 0 var(--space-md);
   }
 
-  /* Seguridad — contact cards with tap-to-call / tap-to-map */
   .contact-card-value { font-size: 0.95rem; font-weight: 600; margin-top: 2px; }
   .contact-card-note { font-size: 0.8rem; color: var(--text-faint); margin-top: 4px; line-height: 1.4; }
   .contact-actions { display: flex; gap: var(--space-sm); margin-top: var(--space-md); }
@@ -658,7 +683,7 @@
     background: var(--bg-elevated);
     border: 1px solid var(--hairline);
     border-radius: var(--radius-sm);
-    transition: background 0.25s var(--ease-spring), transform 0.25s var(--ease-spring);
+    transition: background 0.3s var(--ease-spring), transform 0.3s var(--ease-spring);
   }
   .contact-link:active { transform: scale(0.97); }
   .contact-link.is-primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
@@ -670,13 +695,12 @@
     padding: var(--space-xl) 0 var(--space-lg);
   }
 
-  /* Scroll/tab-entry choreography — one entrance per panel activation, GPU-safe (transform+opacity+blur only) */
   @keyframes riseIn {
-    from { opacity: 0; transform: translateY(14px); filter: blur(4px); }
-    to   { opacity: 1; transform: translateY(0);     filter: blur(0); }
+    from { opacity: 0; transform: translateY(16px) scale(0.97); filter: blur(4px); }
+    to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
   }
   .day-panel[data-active="true"] > * {
-    animation: riseIn 0.6s var(--ease-spring) both;
+    animation: riseIn 0.65s var(--ease-spring) both;
   }
   .day-panel[data-active="true"] > .day-heading { animation-delay: 0s; }
   .day-panel[data-active="true"] > .day-note { animation-delay: 0.04s; }
@@ -703,42 +727,35 @@
   .day-panel[data-active="true"] .summary-grid > *:nth-child(4) { animation-delay: 0.19s; }
   .day-panel[data-active="true"] .summary-grid > *:nth-child(n+5) { animation-delay: 0.24s; }
 
-  /* ---------------------------------------------------------------
-     Flight-board scroll reveal — each moment card animates in as it
-     scrolls into view (per-card, not a one-shot stagger), with the
-     time readout doing a quick flap-in — nod to the split-flap board
-     that's this app's visual lineage. CSS-only, scroll-driven.
-     Browsers without `animation-timeline: view()` (Firefox, as of
-     this writing) keep the existing JS tab-activation stagger above
-     instead — real fallback, not a degraded copy.
-     --------------------------------------------------------------- */
+  /* Flight-board scroll reveal — por tarjeta, activado por scroll real.
+     Firefox (sin animation-timeline: view()) usa el stagger de arriba en su lugar. */
   @supports (animation-timeline: view()) {
     .day-panel[data-active="true"] .timeline > * { animation: none !important; }
 
     .timeline > .block {
       opacity: 0;
-      animation: flapReveal 0.6s var(--ease-spring) both;
+      animation: flapReveal 0.65s var(--ease-spring) both;
       animation-timeline: view();
-      animation-range: entry 0% entry 45%;
+      animation-range: entry 0% entry 42%;
     }
     .timeline > .block .block-time {
       transform-origin: 50% 100%;
-      animation: flapDigit 0.45s var(--ease-spring) both;
+      animation: flapDigit 0.5s var(--ease-spring) both;
       animation-timeline: view();
-      animation-range: entry 5% entry 40%;
+      animation-range: entry 6% entry 38%;
     }
   }
   @keyframes flapReveal {
-    from { opacity: 0; transform: translateY(16px); filter: blur(3px); }
-    to   { opacity: 1; transform: translateY(0); filter: blur(0); }
+    from { opacity: 0; transform: translateY(18px) scale(0.97); filter: blur(3px); }
+    to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
   }
   @keyframes flapDigit {
-    from { opacity: 0; transform: rotateX(-85deg); }
+    from { opacity: 0; transform: rotateX(-80deg); }
     to   { opacity: 1; transform: rotateX(0deg); }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .card-body-wrap, .chevron, .tab-btn, .card-head, .mode-btn, .check-row,
+    .card-body-wrap, .card-body, .chevron, .tab-btn, .card-head, .mode-btn, .check-row, .check-box,
     .day-panel[data-active="true"] > *, .day-panel[data-active="true"] .timeline > *,
     .day-panel[data-active="true"] .checklist > *, .day-panel[data-active="true"] .summary-grid > *,
     .timeline > .block, .timeline > .block .block-time {
@@ -753,7 +770,6 @@
     main { max-width: 760px; }
     .ropa-columns { flex-direction: row; align-items: flex-start; }
     .ropa-columns > * { flex: 1; }
-    /* Breakpoint-free responsive grid — card count varies per panel now that Resumen is gone */
     #panel-pretrip .summary-grid,
     #panel-seguridad .summary-grid {
       display: grid;
@@ -832,7 +848,7 @@ const FIXED_DATA = deepFreeze({
     note: "Esquina suroeste, nivel 300, lado con sombra"
   },
   transfers: {
-    airportToHotel: "Mountain View ↔ SFO, ~35–45 min en auto/Uber",
+    airportToHotel: "Sunnyvale ↔ SFO, ~30–40 min en auto/Uber",
     tuesdayBuffer: "Salir con 2h de margen antes del vuelo de Raúl"
   }
 });
@@ -867,7 +883,7 @@ function validateTripData(data) {
 const TRIP_DATA = {
   pretrip: [
     { when: "Cuanto antes", tasks: [
-      { key: "hotel", label: "Cerrar reservación del hotel (Aloft Mountain View) — mientras antes, mejor precio y disponibilidad" }
+      { key: "hotel", label: "Cerrar reservación del hotel (Aloft Sunnyvale — ya decidido, falta reservar)" }
     ]},
     { when: "Cuanto antes / cuando Pao tenga info", tasks: [
       { key: "pao-flight", label: "Confirmar vuelo de regreso de Pao (vía empresa)" }
@@ -875,10 +891,8 @@ const TRIP_DATA = {
     { when: "Cuando se pueda", tasks: [
       { key: "delta-leg", label: "Confirmar con Delta el tramo SFO→LAX (aerolínea y asiento)" }
     ]},
-    { when: "~22–23 sept (2–3 días antes)", tasks: [
-      { key: "uber-reserve", label: "Reservar transporte SFO → Mountain View (Uber Reserve — precio fijo, coche garantizado)" },
-      { key: "cash", label: "Cambiar ~$100–150 USD en efectivo en un banco en México (mejor tipo de cambio que el aeropuerto)" },
-      { key: "clipper", label: "Agregar Clipper card a Apple Wallet / Google Wallet" }
+    { when: "~1-2 días antes de viajar", tasks: [
+      { key: "cash", label: "Cambiar ~$100–150 USD en efectivo en un banco en México (mejor tipo de cambio que el aeropuerto)" }
     ]}
   ],
 
@@ -909,19 +923,19 @@ const TRIP_DATA = {
         {
           time: "21:10", title: "Llegada a SFO", status: "confirmed",
           desc: "Aeroméxico directo desde MEX.",
-          notes: "Recoger equipaje (1 documentada + 1 carry-on compartidas) y salir directo a transporte reservado."
+          notes: "Recoger equipaje (1 documentada + 1 carry-on compartidas) antes de decidir el traslado."
         },
         {
-          time: "~22:00", title: "Traslado a Mountain View", status: "confirmed", location: "SFO → Aloft Mountain View",
-          desc: "35–45 min en auto/Uber (reservado con anticipación).",
-          notes: "Dirección del hotel: 840 East El Camino Real, Mountain View, CA 94040."
+          time: "~22:00", title: "Traslado a Sunnyvale", status: "pending", location: "SFO → Aloft Sunnyvale",
+          desc: "Evaluando BART (SFO→Millbrae) + Caltrain (Millbrae→Sunnyvale) vs. Uber directo.",
+          notes: "BART+Caltrain es viable pero migración/aduana de un vuelo internacional puede quitar tiempo. Límite: si no van saliendo de la terminal para las ~22:00, mejor Uber directo (~30–40 min) y no arriesgar el último tren. Pago en BART/Caltrain: tap con tarjeta contactless o Apple/Google Pay — no hace falta Clipper."
         },
         {
           time: "Noche", title: "Check-in y cena ligera", status: "pending",
           desc: "Asentarse, cena cerca del hotel si hay hambre.",
           notes: "No forzar nada — llegan cansados de un vuelo largo.",
           food: {
-            label: "Cena en Mountain View (Castro St, ~10–15 min del hotel)",
+            label: "Cena cerca del hotel en Sunnyvale (centro, a pasos de la estación)",
             options: [
               { name: "Zareen's", tag: "walk", desc: "Pakistaní/Indio fusión — casual $15–25" },
               { name: "Cascal", tag: "walk", desc: "Tapas España/Latam — casual-medio" },
@@ -933,7 +947,7 @@ const TRIP_DATA = {
     },
     {
       key: "sab26", tab: "Sáb 26", heading: "Sábado 26 sept — San Francisco",
-      note: "Día completo en SF vía Caltrain. Concierto en Shoreline Amphitheatre esta noche — puede haber más tráfico al volver a Mountain View.",
+      note: "Día completo en SF vía Caltrain. Concierto de Riley Green en Shoreline Amphitheatre esta noche — una de las razones por las que conviene quedarse en Sunnyvale en vez de Mountain View (los precios de hotel se disparan esa noche por el concierto).",
       blocks: [
         {
           time: "~7:00am", title: "Despertar", status: "confirmed",
@@ -941,12 +955,12 @@ const TRIP_DATA = {
         },
         {
           time: "~7:45am", title: "Caltrain a San Francisco", status: "confirmed",
-          desc: "Salida desde Mountain View."
+          desc: "Salida desde Sunnyvale."
         },
         {
           time: "9:30am–1:30pm", title: "California Academy of Sciences", status: "confirmed", location: "Golden Gate Park",
           desc: "Acuario, planetario, selva tropical.",
-          notes: "Abre 9:30am (lun–sáb). Reservar boleto de planetario al llegar, vía QR en el lobby.",
+          notes: "Abre 9:30am (lun–sáb). Boleto anticipado ~$50/adulto — comprar antes de ir.",
           food: {
             label: "Comida cerca (Irving St, ~10 min caminando)",
             options: [
@@ -959,15 +973,15 @@ const TRIP_DATA = {
         {
           time: "~1:30pm–5pm", title: "Actividad / tiendas — por definir", status: "pending",
           desc: "Opciones sobre la mesa: Ferry Building, Golden Gate/Crissy Field, Mission District, Dolores Park, Castro, Twin Peaks, Union Square.",
-          notes: "No conviene regresar a Mountain View a comer este día — se pierde 1h+ de Caltrain ida-vuelta. Resolver comida en SF mismo."
+          notes: "No conviene regresar a Sunnyvale a comer este día — se pierde tiempo de tren ida-vuelta. Resolver comida en SF mismo."
         },
         {
           time: "Tarde", title: "Comprar jersey/merch 49ers", status: "confirmed", location: "Team Store, Westfield SF (Market & Powell)",
           desc: "Hacerlo hoy evita líneas el día del partido."
         },
         {
-          time: "Noche", title: "Cena y regreso a Mountain View", status: "pending",
-          desc: "Ojo con tráfico extra por el concierto en Shoreline."
+          time: "Noche", title: "Cena y regreso a Sunnyvale", status: "pending",
+          desc: "El hotel está a pasos de la estación — sin tramo largo caminando al llegar."
         }
       ]
     },
@@ -975,15 +989,17 @@ const TRIP_DATA = {
       key: "dom27", tab: "Dom 27", heading: "Domingo 27 sept — Día de partido",
       blocks: [
         {
-          time: "~8:00am", title: "Despertar", status: "confirmed",
+          time: "~8:15am", title: "Despertar", status: "confirmed",
           desc: "Día de partido — con tiempo para desayunar bien antes de salir."
         },
         {
-          time: "~8:30am", title: "Desayuno completo en Mountain View", status: "confirmed",
-          desc: "No en San José — desayunar antes de salir."
+          time: "~8:45am", title: "Desayuno completo en Sunnyvale", status: "confirmed",
+          desc: "Ya no en Mountain View — desayunar cerca del hotel antes de salir."
         },
         {
-          time: "~10:30am", title: "Caltrain a Santa Clara / Levi's Stadium", status: "confirmed"
+          time: "~10:45am", title: "Caltrain a Santa Clara / Levi's Stadium", status: "confirmed",
+          desc: "Trayecto corto — Sunnyvale a Santa Clara son ~8 min en Caltrain.",
+          notes: "Mucho más corto que desde Mountain View — otro punto a favor del cambio de hotel."
         },
         {
           time: "11:05am", title: "Gates abren", status: "confirmed", location: "Levi's Stadium",
@@ -1001,7 +1017,7 @@ const TRIP_DATA = {
         },
         {
           time: "Tarde", title: "Comida en San José", status: "pending", location: "Santana Row",
-          desc: "Está de camino — no hace falta desviarse ni forzar volver a Mountain View con hambre.",
+          desc: "Al salir del estadio, antes de volver a Sunnyvale.",
           food: {
             label: "Opciones en Santana Row",
             options: [
@@ -1012,24 +1028,26 @@ const TRIP_DATA = {
           }
         },
         {
-          time: "Noche", title: "Regreso a Mountain View", status: "confirmed"
+          time: "Noche", title: "Regreso a Sunnyvale", status: "confirmed"
         }
       ]
     },
     {
       key: "lun28", tab: "Lun 28", heading: "Lunes 28 sept — Día libre",
-      note: "Pao tomó el día — ambos libres.",
+      note: "Pao pidió el día — 100% libre para los dos.",
       blocks: [
         {
           time: "~8:00am", title: "Despertar", status: "confirmed",
-          desc: "Menos prisa que el sábado — SFMOMA abre a las 10am."
+          desc: "Menos prisa que el sábado."
         },
         {
-          time: "~8:45am", title: "Caltrain a San Francisco", status: "confirmed"
+          time: "~8:45am", title: "Caltrain a San Francisco", status: "confirmed",
+          desc: "Entrada a SFMOMA recomendada 10:00am."
         },
         {
           time: "10am–5pm", title: "SFMOMA", status: "confirmed", location: "San Francisco",
           desc: "Cerrado martes–miércoles, hoy sí abre.",
+          notes: "Boleto anticipado $30/adulto — entrada recomendada 10:00am.",
           food: {
             label: "Comida cerca (Yerba Buena)",
             options: [
@@ -1042,29 +1060,30 @@ const TRIP_DATA = {
         {
           time: "Tarde", title: "Segunda actividad en SF — por definir", status: "pending",
           desc: "Algo que no se haya cubierto el sábado.",
-          notes: "No conviene regresar a Mountain View a mitad de tarde — resolver en SF, volver ya para la cena."
+          notes: "No conviene regresar a Sunnyvale a mitad de tarde — resolver en SF, volver ya para la cena."
         },
         {
-          time: "Noche", title: "Cena con Vaish y su esposo", status: "pending", location: "Mountain View",
+          time: "Noche", title: "Cena con Vaish y su esposo", status: "pending", location: "Sunnyvale",
           desc: "Compañera de trabajo de Pao.",
-          notes: "Hora y lugar exacto sin definir aún. Confirmado que es en Mountain View, salvo que cambie el plan."
+          notes: "Hora y lugar exacto sin definir aún. Salvo que cambie el plan, es en Sunnyvale."
         }
       ]
     },
     {
       key: "mar29", tab: "Mar 29", heading: "Martes 29 sept — Regreso de Raúl",
+      note: "Última noche (lunes a martes) comparten el cuarto de Pao — pagan el cargo de persona extra en su reservación, ya no hotel aparte para Raúl. Solo Raúl regresa hoy; Pao se queda hasta jueves 1 oct.",
       blocks: [
         {
           time: "~9:00am", title: "Despertar", status: "confirmed",
-          desc: "Mañana libre antes de salir al aeropuerto."
+          desc: "Mañana libre y corta antes de salir al aeropuerto."
         },
         {
           time: "~11:00am", title: "Checkout del hotel", status: "pending",
-          desc: "Confirmar hora de checkout con el Aloft (normalmente 11am–12pm)."
+          desc: "Confirmar hora de checkout con el Aloft Sunnyvale (normalmente 11am–12pm)."
         },
         {
-          time: "~11:45am", title: "Traslado a SFO", status: "confirmed", location: "Mountain View → SFO",
-          desc: "35–45 min en auto/Uber.",
+          time: "~11:45am", title: "Traslado a SFO", status: "confirmed", location: "Sunnyvale → SFO",
+          desc: "~30–40 min en auto/Uber.",
           notes: "Meta: llegar al aeropuerto ~12:30pm (2h antes del vuelo de Raúl, 14:30)."
         },
         {
@@ -1102,7 +1121,7 @@ const DOCUMENTOS_CHECKLIST = [
   { key: "visa-pao", label: "Visa de Pao" },
   { key: "flight-out", label: "Confirmación vuelo ida (MEX → SFO)" },
   { key: "flight-back-raul", label: "Confirmación vuelo regreso Raúl (SFO → LAX → MEX)" },
-  { key: "hotel", label: "Reservación de hotel (Aloft Mountain View)" }
+  { key: "hotel", label: "Reservación de hotel (Aloft Sunnyvale)" }
 ];
 
 const PACKING_ITEMS = [
@@ -1131,16 +1150,16 @@ const SEGURIDAD_DATA = [
     isPrimary: true
   },
   {
-    title: "Sutter Urgent Care",
-    value: "701 East El Camino Real, 2do piso, Mountain View",
-    note: "El más cercano al hotel. Abierto todos los días, 8am–8pm.",
-    tel: "+16509347800",
-    mapQuery: "Sutter Urgent Care, 701 East El Camino Real, Mountain View, CA"
+    title: "Instant Urgent Care — Sunnyvale",
+    value: "970 W El Camino Real, Ste 8, Sunnyvale",
+    note: "Lun–Vie 9am–6pm, Sáb–Dom 9am–5pm. No es 24h — para eso, El Camino Hospital abajo.",
+    tel: "+14082127420",
+    mapQuery: "Instant Urgent Care, 970 W El Camino Real, Sunnyvale, CA"
   },
   {
     title: "El Camino Hospital — Urgencias",
     value: "2500 Grant Rd, Mountain View",
-    note: "Sala de emergencias, abierto 24 horas.",
+    note: "La sala de emergencias 24h más cercana en la zona.",
     tel: "+16509407055",
     mapQuery: "El Camino Hospital Emergency Room, 2500 Grant Rd, Mountain View, CA"
   },
@@ -1154,7 +1173,7 @@ const SEGURIDAD_DATA = [
 ];
 
 // ---------------------------------------------------------------
-// localStorage helpers — checklists de Documentos y Ropa
+// localStorage helpers — checklists de Antes de viajar, Documentos y Ropa
 // ---------------------------------------------------------------
 function loadCheck(key) {
   try { return localStorage.getItem("trip_check_" + key) === "1"; }
@@ -1163,6 +1182,23 @@ function loadCheck(key) {
 function saveCheck(key, val) {
   try { localStorage.setItem("trip_check_" + key, val ? "1" : "0"); }
   catch (e) { /* localStorage unavailable — state just won't persist */ }
+}
+
+// ---------------------------------------------------------------
+// Flujo decorativo del spine — interpola azul(amanecer) → ámbar(mediodía)
+// → rosa(atardecer) a lo largo del timeline de cada día. Puramente
+// decorativo: nunca reemplaza el color semántico confirmado/pendiente
+// de los dots, solo tiñe la línea conectora.
+// ---------------------------------------------------------------
+function lerp(a, b, t) { return a + (b - a) * t; }
+function spineColor(index, total) {
+  const t = total <= 1 ? 0 : index / (total - 1);
+  const dawn = [0.72, 0.11, 240], noon = [0.8, 0.11, 75], dusk = [0.75, 0.10, 345];
+  let a, b, tt;
+  if (t <= 0.5) { a = dawn; b = noon; tt = t / 0.5; }
+  else { a = noon; b = dusk; tt = (t - 0.5) / 0.5; }
+  const L = lerp(a[0], b[0], tt), C = lerp(a[1], b[1], tt), H = lerp(a[2], b[2], tt);
+  return "oklch(" + L.toFixed(3) + " " + C.toFixed(3) + " " + H.toFixed(1) + ")";
 }
 
 // ---------------------------------------------------------------
@@ -1194,7 +1230,13 @@ function chevronSvg() {
   return wrap;
 }
 
-// Double-bezel: outer machined shell wrapping an inner glass core.
+function warnSvg() {
+  const s = document.createElement("span");
+  s.innerHTML = '<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1.5L14.8 13.5H1.2L8 1.5Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8 6V9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="8" cy="11.2" r="0.9" fill="currentColor"/></svg>';
+  return s.firstChild;
+}
+
+// Double-bezel: wrapper de paso (visualmente neutro, ver CSS .bezel-shell).
 function shell(coreNode, extraClass) {
   return el("div", { class: "bezel-shell" + (extraClass ? " " + extraClass : "") }, [coreNode]);
 }
@@ -1215,11 +1257,10 @@ function renderFoodOptions(food) {
   return wrap;
 }
 
-function renderBlock(block) {
+function renderBlock(block, index, total) {
   const status = block.status === "pending" ? "pending" : "confirmed";
   const hasBody = block.notes || block.food || block.warn;
 
-  // Board-line: hora grande + status + chevron, una sola fila (tipo tablero de salidas)
   const headTop = el("div", { class: "card-head-top" }, [
     el("span", { class: "block-time" }, [block.time]),
     el("span", { class: "card-head-spacer" }),
@@ -1240,7 +1281,7 @@ function renderBlock(block) {
   if (hasBody) {
     const bodyContent = el("div", { class: "card-body" });
     if (block.warn) {
-      bodyContent.appendChild(el("span", { class: "badge-warn" }, ["⚠ Importante"]));
+      bodyContent.appendChild(el("span", { class: "badge-warn" }, [warnSvg(), "Importante"]));
       bodyContent.appendChild(el("p", null, [block.warn]));
     }
     if (block.notes) bodyContent.appendChild(el("p", null, [block.notes]));
@@ -1255,7 +1296,7 @@ function renderBlock(block) {
 
   const dotCol = el("div", { class: "block-time-col" }, [
     el("div", { class: "block-dot" }),
-    el("div", { class: "block-line" })
+    el("div", { class: "block-line", style: "background:" + spineColor(index, total) + ";" })
   ]);
 
   return el("article", { class: "block", "data-status": status }, [dotCol, shell(card)]);
@@ -1334,7 +1375,7 @@ function renderDayPanel(day) {
   panel.appendChild(el("h2", { class: "day-heading" }, [day.heading]));
   if (day.note) panel.appendChild(el("p", { class: "day-note" }, [day.note]));
   const timeline = el("div", { class: "timeline" });
-  day.blocks.forEach(function (b) { timeline.appendChild(renderBlock(b)); });
+  day.blocks.forEach(function (b, i) { timeline.appendChild(renderBlock(b, i, day.blocks.length)); });
   panel.appendChild(timeline);
   return panel;
 }
@@ -1357,22 +1398,29 @@ function renderPretripPanel() {
     el("h2", null, ["Hospedaje"]),
     el("div", { class: "hotel-options" }, [
       el("div", { class: "hotel-opt", "data-picked": "true" }, [
-        el("div", null, [
-          el("div", { class: "hotel-name" }, ["Aloft Mountain View — inclinación actual"]),
-          el("div", { class: "hotel-price" }, ["840 East El Camino Real, Mountain View, CA 94040 · $130–180/noche"])
+        el("div", { class: "hotel-opt-row" }, [
+          el("div", null, [
+            el("div", { class: "hotel-name" }, ["Aloft Sunnyvale — decidido"]),
+            el("div", { class: "hotel-price" }, ["170 South Sunnyvale Ave, Sunnyvale, CA 94086 · $5,024 MXN"])
+          ]),
+          el("span", { class: "status-pill" }, ["Confirmado"])
         ]),
-        el("span", { class: "status-pill" }, ["Por confirmar"])
+        el("div", { class: "hotel-opt-note" }, ["A pasos de la estación de Caltrain de Sunnyvale (el de Mountain View quedaba a 40 min caminando). Trayecto más corto a Santa Clara el domingo, y evita la presión de precio del concierto de Riley Green en Shoreline el sábado. La noche lunes-martes, Raúl se une al cuarto de Pao (cargo de persona extra) — ya no hotel aparte."])
       ]),
       el("div", { class: "hotel-opt" }, [
-        el("div", null, [
-          el("div", { class: "hotel-name" }, ["Hyatt Centric Mountain View"]),
-          el("div", { class: "hotel-price" }, ["$200–350/noche"])
+        el("div", { class: "hotel-opt-row" }, [
+          el("div", null, [
+            el("div", { class: "hotel-name" }, ["Aloft Mountain View — no elegido"]),
+            el("div", { class: "hotel-price" }, ["$5,800 MXN"])
+          ])
         ])
       ]),
       el("div", { class: "hotel-opt" }, [
-        el("div", null, [
-          el("div", { class: "hotel-name" }, ["Residence Inn Palo Alto/Mountain View"]),
-          el("div", { class: "hotel-price" }, ["$130–160/noche"])
+        el("div", { class: "hotel-opt-row" }, [
+          el("div", null, [
+            el("div", { class: "hotel-name" }, ["Hampton Inn — no elegido"]),
+            el("div", { class: "hotel-price" }, ["$7,700 MXN"])
+          ])
         ])
       ])
     ])
@@ -1383,7 +1431,7 @@ function renderPretripPanel() {
     summaryRow("Presupuesto total", "$25,000 USD (incluye todo)", true),
     summaryRow("Estimado real", "~$3,500–4,800 USD para los dos", true),
     summaryRow("Cash", "~$100–150 USD de colchón, resto tarjeta/Apple Pay"),
-    summaryRow("Transporte", "Default a Caltrain/caminar — Uber solo casos puntuales")
+    summaryRow("Transporte", "Default a Caltrain/BART/caminar — Uber solo casos puntuales")
   ])));
 
   panel.appendChild(grid);
@@ -1417,7 +1465,7 @@ function renderRopaPanel() {
   panel.appendChild(shell(el("div", { class: "summary-card" }, [
     el("h2", null, ["Equipaje"]),
     summaryRow("Maletas", "1 carry-on + 1 documentada (compartidas entre los dos, no una por persona)"),
-    summaryRow("Clima fin de sept", "SF fresco/neblina 18–21°C día, ~13°C noche. Mountain View más cálido y soleado, 26–29°C día.")
+    summaryRow("Clima fin de sept", "SF fresco/neblina 18–21°C día, ~13°C noche. Sunnyvale/South Bay más cálido y soleado, 26–29°C día.")
   ])));
 
   const columns = el("div", { class: "ropa-columns" });
@@ -1461,9 +1509,8 @@ function renderSeguridadPanel() {
   panel.appendChild(el("p", { class: "day-note" }, ["Números y direcciones a la mano — sin tener que buscar en el momento."]));
   const grid = el("div", { class: "summary-grid" });
 
-  // Alergia — siempre visible, no colapsable
   grid.appendChild(shell(el("div", { class: "summary-card allergy-card" }, [
-    el("h2", null, ["⚠ Alergia"]),
+    el("h2", null, ["Alergia"]),
     el("p", null, ["Raúl es alérgico a almendras y nueces de Castilla (pistaches sí). Tenerlo presente al elegir cualquier restaurante."])
   ])));
 
@@ -1484,7 +1531,6 @@ function summaryRow(label, value, mono) {
 // ---------------------------------------------------------------
 
 function makeTabGroup(config) {
-  // config: { navEl, panelsEl, tabs: [{key,label,panel}] }
   config.tabs.forEach(function (t) {
     const btn = el("button", {
       class: "tab-btn", type: "button", role: "tab",
