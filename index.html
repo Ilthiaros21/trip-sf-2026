@@ -28,10 +28,15 @@
     --pending: oklch(0.68 0.14 75);
     --danger: oklch(0.55 0.19 20);
 
-    /* flujo decorativo del timeline — no reemplaza el color semántico de los dots */
-    --spine-dawn: oklch(0.72 0.11 240);
-    --spine-noon: oklch(0.8 0.11 75);
-    --spine-dusk: oklch(0.75 0.1 345);
+    /* Colores por categoría de tarjeta — pintan el spine continuo del timeline.
+       Puramente decorativo/informativo: nunca reemplaza el color semántico
+       confirmado/pendiente de los dots, que vive aparte. */
+    --cat-flight: oklch(0.72 0.11 240);   /* vuelos, check-in, abordaje */
+    --cat-transfer: oklch(0.66 0.1 290);  /* traslados, Caltrain, Uber */
+    --cat-activity: oklch(0.8 0.11 75);   /* museos, tiendas, anclas del día */
+    --cat-food: oklch(0.75 0.1 345);      /* comidas */
+    --cat-event: oklch(0.6 0.19 25);      /* el partido — único evento del viaje */
+    --cat-rest: oklch(0.75 0.02 270);     /* despertar, libre, por definir */
 
     --space-xs: 4px;
     --space-sm: 8px;
@@ -67,6 +72,14 @@
     --dur-layout-out: 290ms;/* acordeón cierra — ~75% del open, según regla de salida */
 
     color-scheme: light;
+  }
+
+  /* Registrado para poder transicionar el reveal del spine (custom property con syntax
+     tipado) — funciona en cualquier motor moderno, sin animation-timeline ni JS pesado. */
+  @property --reveal {
+    syntax: '<percentage>';
+    inherits: false;
+    initial-value: 0%;
   }
 
   * { box-sizing: border-box; }
@@ -305,11 +318,57 @@
     position: relative;
   }
 
+  /* ---------------------------------------------------------------
+     Spine continuo — una sola tira de vidrio líquido por día, no un
+     segmento por tarjeta. Se posiciona/pinta por JS (layoutSpine): su
+     alto va del centro del primer dot al centro del último, y su
+     degradado usa el color de categoría de cada tarjeta (vuelo,
+     traslado, actividad, comida, evento, libre). El "reveal" (de
+     transparente a color, conforme se hace scroll) se gobierna con la
+     custom property --reveal, actualizada en cada frame de scroll.
+     --------------------------------------------------------------- */
+  .spine {
+    position: absolute;
+    left: 10px;
+    width: 7px;
+    margin-left: -3.5px;
+    border-radius: 999px;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .spine-track {
+    position: absolute;
+    inset: 0;
+    background: var(--border);
+    border-radius: inherit;
+  }
+  .spine-fill {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    --reveal: 0%;
+    -webkit-mask-image: linear-gradient(to bottom, black calc(var(--reveal) - 6%), transparent var(--reveal));
+    mask-image: linear-gradient(to bottom, black calc(var(--reveal) - 6%), transparent var(--reveal));
+    transition: --reveal 60ms linear;
+  }
+  @supports (backdrop-filter: blur(1px)) {
+    .spine-fill { backdrop-filter: blur(2px) saturate(180%); }
+  }
+  .spine-fill::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 2px;
+    background: linear-gradient(to bottom, oklch(1 0 0 / 0.65), oklch(1 0 0 / 0.15) 40%, transparent 75%);
+  }
+
   .block {
     display: grid;
     grid-template-columns: 20px 1fr;
     gap: var(--space-sm);
     position: relative;
+    z-index: 1;
   }
 
   .block-time-col {
@@ -331,14 +390,6 @@
     border: 2px solid var(--pending);
     box-shadow: 0 0 0 3px color-mix(in oklch, var(--pending) 18%, transparent);
   }
-  .block-line {
-    width: 2px;
-    flex: 1;
-    background: var(--border);
-    margin-top: var(--space-sm);
-    border-radius: 2px;
-  }
-  .block:last-child .block-line { display: none; }
 
   /* la doble-cápsula queda neutralizada: el shell es solo un envoltorio de paso,
      la tarjeta interna lleva toda la superficie (soft shadow, no vidrio) */
@@ -349,13 +400,32 @@
     border-radius: 0;
   }
 
+  /* Tarjetas con un poco de 3D: bisel superior (filo de luz), sombra de canto
+     inferior, y una inclinación leve en reposo (perspective+rotateX) que se
+     aplana al abrir o al presionar — profundidad real, no un drop-shadow genérico. */
   .card {
+    --cat-glow: var(--cat-rest);
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    box-shadow: 0 1px 2px oklch(0.3 0.05 265 / 0.04), 0 10px 24px -12px oklch(0.3 0.05 265 / 0.14);
+    box-shadow:
+      inset 0 1px 0 oklch(1 0 0 / 0.75),
+      inset 0 -1px 0 oklch(0.3 0.05 265 / 0.05),
+      0 1px 2px oklch(0.3 0.05 265 / 0.05),
+      0 16px 28px -16px oklch(0.3 0.05 265 / 0.22),
+      0 4px 22px -12px color-mix(in oklch, var(--cat-glow) 45%, transparent);
     overflow: hidden;
-    transition: box-shadow var(--dur-base) var(--ease-out);
+    transform: perspective(1000px) rotateX(1.5deg);
+    transform-origin: 50% 0%;
+    transition: box-shadow var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+  }
+  .card[data-open="true"] {
+    transform: perspective(1000px) rotateX(0deg);
+  }
+  @supports selector(:has(a)) {
+    .card:has(.card-head:active) {
+      transform: perspective(1000px) rotateX(0deg) scale(0.995);
+    }
   }
   .block[data-status="pending"] .card,
   .card.is-pending {
@@ -572,7 +642,11 @@
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    box-shadow: 0 1px 2px oklch(0.3 0.05 265 / 0.04), 0 10px 24px -12px oklch(0.3 0.05 265 / 0.14);
+    box-shadow:
+      inset 0 1px 0 oklch(1 0 0 / 0.7),
+      0 1px 2px oklch(0.3 0.05 265 / 0.05),
+      0 14px 26px -14px oklch(0.3 0.05 265 / 0.2),
+      0 3px 18px -10px color-mix(in oklch, var(--accent) 22%, transparent);
     padding: var(--space-xl) var(--space-lg);
   }
   .summary-card h2 {
@@ -734,21 +808,23 @@
   }
   .day-panel[data-active="true"] > .day-heading { animation-delay: 0s; }
   .day-panel[data-active="true"] > .day-note { animation-delay: 0.04s; }
-  .day-panel[data-active="true"] .timeline > *,
+  .day-panel[data-active="true"] .timeline > .block,
   .day-panel[data-active="true"] .checklist > * {
     animation: riseIn 0.55s var(--ease-entrance) both;
   }
-  .day-panel[data-active="true"] .timeline > *:nth-child(1),
+  /* nth-of-type, no nth-child: el spine es un <div> hermano no-.block dentro de
+     .timeline, así que contar "hijo N" a secas correría el índice de las tarjetas */
+  .day-panel[data-active="true"] .timeline > .block:nth-of-type(1),
   .day-panel[data-active="true"] .checklist > *:nth-child(1) { animation-delay: 0.05s; }
-  .day-panel[data-active="true"] .timeline > *:nth-child(2),
+  .day-panel[data-active="true"] .timeline > .block:nth-of-type(2),
   .day-panel[data-active="true"] .checklist > *:nth-child(2) { animation-delay: 0.1s; }
-  .day-panel[data-active="true"] .timeline > *:nth-child(3),
+  .day-panel[data-active="true"] .timeline > .block:nth-of-type(3),
   .day-panel[data-active="true"] .checklist > *:nth-child(3) { animation-delay: 0.15s; }
-  .day-panel[data-active="true"] .timeline > *:nth-child(4),
+  .day-panel[data-active="true"] .timeline > .block:nth-of-type(4),
   .day-panel[data-active="true"] .checklist > *:nth-child(4) { animation-delay: 0.2s; }
-  .day-panel[data-active="true"] .timeline > *:nth-child(5),
+  .day-panel[data-active="true"] .timeline > .block:nth-of-type(5),
   .day-panel[data-active="true"] .checklist > *:nth-child(5) { animation-delay: 0.25s; }
-  .day-panel[data-active="true"] .timeline > *:nth-child(n+6),
+  .day-panel[data-active="true"] .timeline > .block:nth-of-type(n+6),
   .day-panel[data-active="true"] .checklist > *:nth-child(n+6) { animation-delay: 0.3s; }
   .day-panel[data-active="true"] .summary-grid > * { animation: riseIn 0.55s var(--ease-entrance) both; }
   .day-panel[data-active="true"] .summary-grid > *:nth-child(1) { animation-delay: 0.04s; }
@@ -785,7 +861,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .card-body-wrap, .card-body, .chevron, .tab-btn, .card-head, .mode-btn, .check-row, .check-box, .check-box svg, .contact-link,
+    .card, .card-body-wrap, .card-body, .chevron, .tab-btn, .card-head, .mode-btn, .check-row, .check-box, .check-box svg, .contact-link,
     .day-panel[data-active="true"] > *, .day-panel[data-active="true"] .timeline > *,
     .day-panel[data-active="true"] .checklist > *, .day-panel[data-active="true"] .summary-grid > *,
     .timeline > .block, .timeline > .block .block-time {
@@ -793,6 +869,13 @@
       animation: none !important;
       opacity: 1 !important;
       transform: none !important;
+    }
+    /* el spine no depende de scroll para mostrar su color — informativo, no espectáculo */
+    .spine-fill {
+      --reveal: 100% !important;
+      transition: none !important;
+      -webkit-mask-image: none !important;
+      mask-image: none !important;
     }
   }
 
@@ -929,39 +1012,38 @@ const TRIP_DATA = {
   days: [
     {
       key: "vie25", tab: "Vie 25", heading: "Viernes 25 sept",
-      note: "Vuelo directo Aeroméxico MEX→SFO, asientos 24B/24C. Salida internacional — llegar al aeropuerto con ~2h50 de margen.",
       blocks: [
         {
-          time: "~14:00", title: "Salir de casa hacia AICM", status: "pending", location: "CDMX → Aeropuerto",
-          desc: "Depende de tu zona y del tráfico — deja margen extra.",
-          notes: "Meta: llegar al aeropuerto ~2h50 antes del vuelo (14:30), estándar para vuelo internacional."
+          time: "2:00pm", title: "Salir de casa hacia AICM", status: "confirmed", location: "CDMX → Aeropuerto", cat: "transfer",
+          desc: "Hora ya decidida.",
+          notes: "Deja ~2h50 de margen antes del vuelo (17:20) — estándar para vuelo internacional, con tiempo de sobra para documentos y check-in sin correr."
         },
         {
-          time: "14:30", title: "Check-in y documentos", status: "confirmed", location: "AICM",
-          desc: "Aeroméxico, vuelo MEX → SFO 17:20.",
+          time: "14:30", title: "Check-in y documentos", status: "confirmed", location: "AICM", cat: "flight",
+          desc: "Aeroméxico, vuelo directo MEX → SFO 17:20.",
           notes: "Mostrador de Aeroméxico. Pasaporte y visa a la mano (ver checklist de Documentos)."
         },
         {
-          time: "~16:50", title: "Abordaje", status: "confirmed",
+          time: "~16:50", title: "Abordaje", status: "confirmed", cat: "flight",
           desc: "Aeroméxico, asientos " + FIXED_DATA.flights.outbound.seats + ".",
           notes: "~30 min antes del despegue."
         },
         {
-          time: "17:20", title: "Despegue MEX → SFO", status: "confirmed",
+          time: "17:20", title: "Despegue MEX → SFO", status: "confirmed", cat: "flight",
           desc: "Directo, ~4h29m."
         },
         {
-          time: "21:10", title: "Llegada a SFO", status: "confirmed",
+          time: "21:10", title: "Llegada a SFO", status: "confirmed", cat: "flight",
           desc: "Aeroméxico directo desde MEX.",
           notes: "Recoger equipaje (1 documentada + 1 carry-on compartidas) antes de decidir el traslado."
         },
         {
-          time: "~22:00", title: "Traslado a Sunnyvale", status: "pending", location: "SFO → Aloft Sunnyvale",
+          time: "~22:00", title: "Traslado a Sunnyvale", status: "pending", location: "SFO → Aloft Sunnyvale", cat: "transfer",
           desc: "Evaluando BART (SFO→Millbrae) + Caltrain (Millbrae→Sunnyvale) vs. Uber directo.",
           notes: "BART+Caltrain es viable pero migración/aduana de un vuelo internacional puede quitar tiempo. Límite: si no van saliendo de la terminal para las ~22:00, mejor Uber directo (~30–40 min) y no arriesgar el último tren. Pago en BART/Caltrain: tap con tarjeta contactless o Apple/Google Pay — no hace falta Clipper."
         },
         {
-          time: "Noche", title: "Check-in y cena ligera", status: "pending",
+          time: "Noche", title: "Check-in y cena ligera", status: "pending", cat: "food",
           desc: "Asentarse, cena cerca del hotel si hay hambre.",
           notes: "No forzar nada — llegan cansados de un vuelo largo.",
           food: {
@@ -977,18 +1059,17 @@ const TRIP_DATA = {
     },
     {
       key: "sab26", tab: "Sáb 26", heading: "Sábado 26 sept — San Francisco",
-      note: "Día completo en SF vía Caltrain. Concierto de Riley Green en Shoreline Amphitheatre esta noche — una de las razones por las que conviene quedarse en Sunnyvale en vez de Mountain View (los precios de hotel se disparan esa noche por el concierto).",
       blocks: [
         {
-          time: "~7:00am", title: "Despertar", status: "confirmed",
+          time: "~7:00am", title: "Despertar", status: "confirmed", cat: "rest",
           desc: "Para llegar a Cal Academy cerca de su apertura, antes de que se llene."
         },
         {
-          time: "~7:45am", title: "Caltrain a San Francisco", status: "confirmed",
+          time: "~7:45am", title: "Caltrain a San Francisco", status: "confirmed", cat: "transfer",
           desc: "Salida desde Sunnyvale."
         },
         {
-          time: "9:30am–1:30pm", title: "California Academy of Sciences", status: "confirmed", location: "Golden Gate Park",
+          time: "9:30am–1:30pm", title: "California Academy of Sciences", status: "confirmed", location: "Golden Gate Park", cat: "activity",
           desc: "Acuario, planetario, selva tropical.",
           notes: "Abre 9:30am (lun–sáb). Boleto anticipado ~$50/adulto — comprar antes de ir.",
           food: {
@@ -1001,17 +1082,18 @@ const TRIP_DATA = {
           }
         },
         {
-          time: "~1:30pm–5pm", title: "Actividad / tiendas — por definir", status: "pending",
+          time: "~1:30pm–5pm", title: "Actividad / tiendas — por definir", status: "pending", cat: "activity",
           desc: "Opciones sobre la mesa: Ferry Building, Golden Gate/Crissy Field, Mission District, Dolores Park, Castro, Twin Peaks, Union Square.",
           notes: "No conviene regresar a Sunnyvale a comer este día — se pierde tiempo de tren ida-vuelta. Resolver comida en SF mismo."
         },
         {
-          time: "Tarde", title: "Comprar jersey/merch 49ers", status: "confirmed", location: "Team Store, Westfield SF (Market & Powell)",
+          time: "Tarde", title: "Comprar jersey/merch 49ers", status: "confirmed", location: "Team Store, Westfield SF (Market & Powell)", cat: "activity",
           desc: "Hacerlo hoy evita líneas el día del partido."
         },
         {
-          time: "Noche", title: "Cena y regreso a Sunnyvale", status: "pending",
-          desc: "El hotel está a pasos de la estación — sin tramo largo caminando al llegar."
+          time: "Noche", title: "Cena y regreso a Sunnyvale", status: "pending", cat: "food",
+          desc: "El hotel está a pasos de la estación — sin tramo largo caminando al llegar.",
+          notes: "Esta noche hay concierto de Riley Green en Shoreline Amphitheatre (Mountain View) — una de las razones por las que conviene quedarse en Sunnyvale: los precios de hotel en Mountain View se disparan esa noche por el concierto."
         }
       ]
     },
@@ -1019,34 +1101,34 @@ const TRIP_DATA = {
       key: "dom27", tab: "Dom 27", heading: "Domingo 27 sept — Día de partido",
       blocks: [
         {
-          time: "~8:15am", title: "Despertar", status: "confirmed",
+          time: "~8:15am", title: "Despertar", status: "confirmed", cat: "rest",
           desc: "Día de partido — con tiempo para desayunar bien antes de salir."
         },
         {
-          time: "~8:45am", title: "Desayuno completo en Sunnyvale", status: "confirmed",
+          time: "~8:45am", title: "Desayuno completo en Sunnyvale", status: "confirmed", cat: "food",
           desc: "Ya no en Mountain View — desayunar cerca del hotel antes de salir."
         },
         {
-          time: "~10:45am", title: "Caltrain a Santa Clara / Levi's Stadium", status: "confirmed",
+          time: "~10:45am", title: "Caltrain a Santa Clara / Levi's Stadium", status: "confirmed", cat: "transfer",
           desc: "Trayecto corto — Sunnyvale a Santa Clara son ~8 min en Caltrain.",
           notes: "Mucho más corto que desde Mountain View — otro punto a favor del cambio de hotel."
         },
         {
-          time: "11:05am", title: "Gates abren", status: "confirmed", location: "Levi's Stadium",
+          time: "11:05am", title: "Gates abren", status: "confirmed", location: "Levi's Stadium", cat: "event",
           desc: "Entrada pública abre 2h antes del kickoff.",
           notes: "Llegar con margen — hay revisión de bolsa clara en la entrada, puede haber fila."
         },
         {
-          time: "1:05 pm", title: "49ers vs Cardinals", status: "confirmed", location: "Levi's Stadium",
+          time: "1:05 pm", title: "49ers vs Cardinals", status: "confirmed", location: "Levi's Stadium", cat: "event",
           desc: "Sección " + FIXED_DATA.game.section + ", Fila " + FIXED_DATA.game.row + ", asientos " + FIXED_DATA.game.seats + ". " + FIXED_DATA.game.note + ".",
           notes: "Boletos comprados — " + FIXED_DATA.game.vendor + ", " + FIXED_DATA.game.pricePerTicket + ".",
           warn: "Bag policy: bolsa clara máx 12\"×6\"×12\", o clutch NO clara máx 4.5\"×6.5\". Nada de bolsas normales ni mochilas — la Coach de Pao se queda en el hotel."
         },
         {
-          time: "Post-partido", title: "Caminar de regreso a la estación", status: "confirmed"
+          time: "Post-partido", title: "Caminar de regreso a la estación", status: "confirmed", cat: "transfer"
         },
         {
-          time: "Tarde", title: "Comida en San José", status: "pending", location: "Santana Row",
+          time: "Tarde", title: "Comida en San José", status: "pending", location: "Santana Row", cat: "food",
           desc: "Al salir del estadio, antes de volver a Sunnyvale.",
           food: {
             label: "Opciones en Santana Row",
@@ -1058,24 +1140,24 @@ const TRIP_DATA = {
           }
         },
         {
-          time: "Noche", title: "Regreso a Sunnyvale", status: "confirmed"
+          time: "Noche", title: "Regreso a Sunnyvale", status: "confirmed", cat: "transfer"
         }
       ]
     },
     {
       key: "lun28", tab: "Lun 28", heading: "Lunes 28 sept — Día libre",
-      note: "Pao pidió el día — 100% libre para los dos.",
       blocks: [
         {
-          time: "~8:00am", title: "Despertar", status: "confirmed",
-          desc: "Menos prisa que el sábado."
+          time: "~8:00am", title: "Despertar", status: "confirmed", cat: "rest",
+          desc: "Menos prisa que el sábado.",
+          notes: "Pao pidió este día — 100% libre para los dos, sin planes forzados."
         },
         {
-          time: "~8:45am", title: "Caltrain a San Francisco", status: "confirmed",
+          time: "~8:45am", title: "Caltrain a San Francisco", status: "confirmed", cat: "transfer",
           desc: "Entrada a SFMOMA recomendada 10:00am."
         },
         {
-          time: "10am–5pm", title: "SFMOMA", status: "confirmed", location: "San Francisco",
+          time: "10am–5pm", title: "SFMOMA", status: "confirmed", location: "San Francisco", cat: "activity",
           desc: "Cerrado martes–miércoles, hoy sí abre.",
           notes: "Boleto anticipado $30/adulto — entrada recomendada 10:00am.",
           food: {
@@ -1088,12 +1170,12 @@ const TRIP_DATA = {
           }
         },
         {
-          time: "Tarde", title: "Segunda actividad en SF — por definir", status: "pending",
+          time: "Tarde", title: "Segunda actividad en SF — por definir", status: "pending", cat: "activity",
           desc: "Algo que no se haya cubierto el sábado.",
           notes: "No conviene regresar a Sunnyvale a mitad de tarde — resolver en SF, volver ya para la cena."
         },
         {
-          time: "Noche", title: "Cena con Vaish y su esposo", status: "pending", location: "Sunnyvale",
+          time: "Noche", title: "Cena con Vaish y su esposo", status: "pending", location: "Sunnyvale", cat: "food",
           desc: "Compañera de trabajo de Pao.",
           notes: "Hora y lugar exacto sin definir aún. Salvo que cambie el plan, es en Sunnyvale."
         }
@@ -1101,39 +1183,41 @@ const TRIP_DATA = {
     },
     {
       key: "mar29", tab: "Mar 29", heading: "Martes 29 sept — Regreso de Raúl",
-      note: "Última noche (lunes a martes) comparten el cuarto de Pao — pagan el cargo de persona extra en su reservación, ya no hotel aparte para Raúl. Solo Raúl regresa hoy; Pao se queda hasta jueves 1 oct.",
       blocks: [
         {
-          time: "~9:00am", title: "Despertar", status: "confirmed",
+          time: "~9:00am", title: "Despertar", status: "confirmed", cat: "rest",
           desc: "Mañana libre y corta antes de salir al aeropuerto."
         },
         {
-          time: "~11:00am", title: "Checkout del hotel", status: "pending",
-          desc: "Confirmar hora de checkout con el Aloft Sunnyvale (normalmente 11am–12pm)."
+          time: "~11:00am", title: "Checkout del hotel", status: "pending", cat: "transfer",
+          desc: "Confirmar hora de checkout con el Aloft Sunnyvale (normalmente 11am–12pm).",
+          notes: "Última noche (lunes a martes) comparten el cuarto de Pao — pagan el cargo de persona extra en su reservación, ya no hotel aparte para Raúl."
         },
         {
-          time: "~11:45am", title: "Traslado a SFO", status: "confirmed", location: "Sunnyvale → SFO",
+          time: "~11:45am", title: "Traslado a SFO", status: "confirmed", location: "Sunnyvale → SFO", cat: "transfer",
           desc: "~30–40 min en auto/Uber.",
           notes: "Meta: llegar al aeropuerto ~12:30pm (2h antes del vuelo de Raúl, 14:30)."
         },
         {
-          time: "14:30", title: "Vuelo de Raúl: SFO → LAX → MEX", status: "confirmed",
+          time: "14:30", title: "Vuelo de Raúl: SFO → LAX → MEX", status: "confirmed", cat: "flight",
           desc: "Escala en LAX. Tramo SFO–LAX pendiente confirmar con Delta.",
-          notes: "Asiento LAX→MEX: " + FIXED_DATA.flights.returnRaul.leg2.seat + "."
+          notes: "Asiento LAX→MEX: " + FIXED_DATA.flights.returnRaul.leg2.seat + ". Solo Raúl regresa hoy — Pao se queda hasta el jueves 1 oct."
         }
       ]
     },
     {
       key: "mie30", tab: "Mié 30", heading: "Miércoles 30 sept — Pao sola",
-      note: "Raúl ya se fue. Espacio reservado para lo que Pao decida hacer estos días — pendiente de confirmar con ella.",
       blocks: [
-        { time: "Todo el día", title: "Por definir", status: "pending", desc: "Sin actividades asignadas todavía." }
+        {
+          time: "Todo el día", title: "Por definir", status: "pending", cat: "rest",
+          desc: "Raúl ya se fue. Espacio reservado para lo que Pao decida hacer estos días — pendiente de confirmar con ella."
+        }
       ]
     },
     {
       key: "jue1", tab: "Jue 1", heading: "Jueves 1 oct — Pao sola, día de salida",
       blocks: [
-        { time: "Por definir", title: "Actividad / salida", status: "pending", desc: "Checar horario de vuelo de Pao cuando se confirme." }
+        { time: "Por definir", title: "Actividad / salida", status: "pending", cat: "rest", desc: "Checar horario de vuelo de Pao cuando se confirme." }
       ]
     }
   ]
@@ -1215,20 +1299,90 @@ function saveCheck(key, val) {
 }
 
 // ---------------------------------------------------------------
-// Flujo decorativo del spine — interpola azul(amanecer) → ámbar(mediodía)
-// → rosa(atardecer) a lo largo del timeline de cada día. Puramente
-// decorativo: nunca reemplaza el color semántico confirmado/pendiente
-// de los dots, solo tiñe la línea conectora.
+// Spine continuo del timeline — una tira por día, coloreada por categoría
+// de tarjeta (vuelo/traslado/actividad/comida/evento/libre), no por
+// posición. layoutSpine mide los dots reales (getBoundingClientRect) para
+// que el degradado y el alto de la tira sigan al layout de verdad —
+// incluye tarjetas abiertas/cerradas, que cambian de alto. Puramente
+// decorativo/informativo: nunca reemplaza el color semántico
+// confirmado/pendiente de los dots, que vive aparte en .block-dot.
 // ---------------------------------------------------------------
-function lerp(a, b, t) { return a + (b - a) * t; }
-function spineColor(index, total) {
-  const t = total <= 1 ? 0 : index / (total - 1);
-  const dawn = [0.72, 0.11, 240], noon = [0.8, 0.11, 75], dusk = [0.75, 0.10, 345];
-  let a, b, tt;
-  if (t <= 0.5) { a = dawn; b = noon; tt = t / 0.5; }
-  else { a = noon; b = dusk; tt = (t - 0.5) / 0.5; }
-  const L = lerp(a[0], b[0], tt), C = lerp(a[1], b[1], tt), H = lerp(a[2], b[2], tt);
-  return "oklch(" + L.toFixed(3) + " " + C.toFixed(3) + " " + H.toFixed(1) + ")";
+function categoryColorVar(cat) {
+  return "var(--cat-" + (cat || "rest") + ")";
+}
+
+function buildSpineGradient(relY, cats) {
+  if (relY.length === 1) return categoryColorVar(cats[0]);
+  const total = relY[relY.length - 1] || 1;
+  const colors = cats.map(categoryColorVar);
+  const blend = 3; // % de mezcla alrededor de cada punto medio entre tarjetas
+  const stops = [colors[0] + " 0%"];
+  for (let i = 1; i < relY.length; i++) {
+    const mid = ((relY[i - 1] + relY[i]) / 2 / total) * 100;
+    stops.push(colors[i - 1] + " " + Math.max(0, mid - blend).toFixed(1) + "%");
+    stops.push(colors[i] + " " + Math.min(100, mid + blend).toFixed(1) + "%");
+  }
+  stops.push(colors[colors.length - 1] + " 100%");
+  return "linear-gradient(to bottom, " + stops.join(", ") + ")";
+}
+
+function layoutSpine(timeline) {
+  const spine = timeline.querySelector(".spine");
+  if (!spine) return;
+  const dots = Array.from(timeline.querySelectorAll(".block-dot"));
+  if (!dots.length) { spine.style.display = "none"; return; }
+  spine.style.display = "";
+  const timelineRect = timeline.getBoundingClientRect();
+  const dotYs = dots.map(function (d) {
+    const r = d.getBoundingClientRect();
+    return (r.top + r.height / 2) - timelineRect.top;
+  });
+  const cats = Array.from(timeline.querySelectorAll(".block")).map(function (b) {
+    return b.dataset.cat || "rest";
+  });
+  const top = dotYs[0];
+  const height = Math.max(1, dotYs[dotYs.length - 1] - top);
+  spine.style.top = top + "px";
+  spine.style.height = height + "px";
+  const relY = dotYs.map(function (y) { return y - top; });
+  const fill = spine.querySelector(".spine-fill");
+  fill.style.background = buildSpineGradient(relY, cats);
+}
+
+// ResizeObserver cubre TODOS los casos que invalidan el layout del spine con un
+// solo mecanismo: activar un día (pasa de display:none a visible), abrir/cerrar
+// una tarjeta, o un resize de ventana que reflowea el texto.
+function watchSpine(timeline) {
+  if (!("ResizeObserver" in window)) { layoutSpine(timeline); return; }
+  const ro = new ResizeObserver(function () { layoutSpine(timeline); });
+  ro.observe(timeline);
+}
+
+// Reveal de "transparente al color de la tarjeta" conforme se hace scroll.
+// Un solo listener global (no uno por día) que actualiza el spine del día
+// ACTIVO — el resto están display:none y su medición no importa mientras
+// no se muestren (se recalcula solo con activarlos, vía watchSpine arriba).
+let spineRevealTick = null;
+function setupSpineReveal(panelsTripEl) {
+  let ticking = false;
+  function update() {
+    ticking = false;
+    const fill = panelsTripEl.querySelector('.day-panel[data-active="true"] .spine-fill');
+    if (!fill) return;
+    const rect = fill.getBoundingClientRect();
+    const vh = window.innerHeight || document.documentElement.clientHeight;
+    const total = rect.height + vh;
+    const traveled = vh - rect.top;
+    const pct = total > 0 ? Math.max(0, Math.min(100, (traveled / total) * 100)) : 0;
+    fill.style.setProperty("--reveal", pct.toFixed(1) + "%");
+  }
+  function onScroll() {
+    if (!ticking) { ticking = true; requestAnimationFrame(update); }
+  }
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", onScroll, { passive: true });
+  update();
+  spineRevealTick = update;
 }
 
 // ---------------------------------------------------------------
@@ -1287,9 +1441,10 @@ function renderFoodOptions(food) {
   return wrap;
 }
 
-function renderBlock(block, index, total) {
+function renderBlock(block) {
   const status = block.status === "pending" ? "pending" : "confirmed";
   const hasBody = block.notes || block.food || block.warn;
+  const cat = block.cat || "rest";
 
   const headTop = el("div", { class: "card-head-top" }, [
     el("span", { class: "block-time" }, [block.time]),
@@ -1307,6 +1462,7 @@ function renderBlock(block, index, total) {
   const head = el("button", { class: "card-head", type: "button", "aria-expanded": "false" }, [headTop, titleGroup]);
 
   const card = el("div", { class: "card", "data-open": "false" }, [head]);
+  card.style.setProperty("--cat-glow", categoryColorVar(cat));
 
   if (hasBody) {
     const bodyContent = el("div", { class: "card-body" });
@@ -1325,11 +1481,10 @@ function renderBlock(block, index, total) {
   }
 
   const dotCol = el("div", { class: "block-time-col" }, [
-    el("div", { class: "block-dot" }),
-    el("div", { class: "block-line", style: "background:" + spineColor(index, total) + ";" })
+    el("div", { class: "block-dot" })
   ]);
 
-  return el("article", { class: "block", "data-status": status }, [dotCol, shell(card)]);
+  return el("article", { class: "block", "data-status": status, "data-cat": cat }, [dotCol, shell(card)]);
 }
 
 // Delegación: un solo listener por panel, no uno por tarjeta.
@@ -1403,10 +1558,15 @@ function hydrateChecklists(root) {
 function renderDayPanel(day) {
   const panel = el("section", { class: "day-panel", id: "panel-" + day.key, role: "tabpanel", "aria-labelledby": "tab-" + day.key });
   panel.appendChild(el("h2", { class: "day-heading" }, [day.heading]));
-  if (day.note) panel.appendChild(el("p", { class: "day-note" }, [day.note]));
   const timeline = el("div", { class: "timeline" });
-  day.blocks.forEach(function (b, i) { timeline.appendChild(renderBlock(b, i, day.blocks.length)); });
+  const spine = el("div", { class: "spine", "aria-hidden": "true" }, [
+    el("div", { class: "spine-track" }),
+    el("div", { class: "spine-fill" })
+  ]);
+  timeline.appendChild(spine);
+  day.blocks.forEach(function (b) { timeline.appendChild(renderBlock(b)); });
   panel.appendChild(timeline);
+  watchSpine(timeline);
   return panel;
 }
 
@@ -1584,6 +1744,7 @@ function activateInGroup(config, key) {
   const activeBtn = document.getElementById("tab-" + key);
   if (activeBtn) activeBtn.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
   config.activeKey = key;
+  if (spineRevealTick) spineRevealTick();
 }
 
 function setMode(mode, groups) {
@@ -1595,6 +1756,7 @@ function setMode(mode, groups) {
   groups.trip.panelsEl.hidden = !isTrip;
   groups.info.navEl.hidden = isTrip;
   groups.info.panelsEl.hidden = isTrip;
+  if (isTrip && spineRevealTick) spineRevealTick();
 }
 
 function boot() {
@@ -1625,6 +1787,7 @@ function boot() {
   });
 
   hydrateChecklists(panelsInfo);
+  setupSpineReveal(panelsTrip);
 
   activateInGroup(tripGroup, TRIP_DATA.days[0].key);
   activateInGroup(infoGroup, "pretrip");

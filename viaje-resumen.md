@@ -70,7 +70,7 @@ Bolsa clara maxima 12"x6"x12", o clutch NO clara maxima 4.5"x6.5". Nada de bolsa
 
 ### Viernes 25
 
-Salir de casa hacia AICM ~14:00 (pendiente, depende de zona/trafico en CDMX — meta: llegar ~2h50 antes del vuelo, 14:30). Check-in y documentos 14:30. Abordaje ~16:50. Despegue 17:20. Llegada SFO 21:10, traslado a Sunnyvale (BART+Caltrain o Uber directo segun hora de salida de la terminal — ver Transporte arriba), check-in, noche de asentarse, cena ligera cerca del hotel si hay hambre.
+Salir de casa hacia AICM a las 2:00pm (ya confirmado). Deja ~2h50 de margen antes del vuelo (17:20), estandar para vuelo internacional. Check-in y documentos 14:30. Abordaje ~16:50. Despegue 17:20. Llegada SFO 21:10, traslado a Sunnyvale (BART+Caltrain o Uber directo segun hora de salida de la terminal — ver Transporte arriba), check-in, noche de asentarse, cena ligera cerca del hotel si hay hambre.
 
 Opciones de cena cerca del hotel en Sunnyvale (centro, a pasos de la estacion):
 - Walkable: Zareen's (Pakistani/Indio fusion, casual $15-25), Cascal (tapas Espana/Latam, casual-medio)
