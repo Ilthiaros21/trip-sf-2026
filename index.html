@@ -50,8 +50,21 @@
     --font-display: "Familjen Grotesk", -apple-system, sans-serif;
     --font-mono: "Hanken Grotesk", -apple-system, sans-serif;
 
-    /* expo-out refinado — deceleración "líquida", sin rebote, consistente en toda la app */
-    --ease-spring: cubic-bezier(0.19, 1, 0.22, 1);
+    /* Sistema de motion direccional (skill motion-design): una curva por propósito, no una sola para todo.
+       - entrance: expo-out, para apariciones grandes (stagger de tarjetas, flap reveal).
+       - out: quart-out, default snappy para cambios de estado (hover, selección).
+       - in: quart-in, para salidas — acelera, se siente ~75% más rápido que su entrada.
+       - in-out: para toggles que van y vuelven en su lugar (chevron, checkbox). */
+    --ease-entrance: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-out: cubic-bezier(0.25, 1, 0.5, 1);
+    --ease-in: cubic-bezier(0.5, 0, 0.75, 0);
+    --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+    --dur-instant: 120ms;   /* feedback de press — botón, tarjeta, checklist */
+    --dur-fast: 220ms;      /* hover, color/fondo */
+    --dur-base: 300ms;      /* toggles en su lugar: chevron, selección de tab */
+    --dur-layout-in: 380ms; /* acordeón abre */
+    --dur-layout-out: 290ms;/* acordeón cierra — ~75% del open, según regla de salida */
 
     color-scheme: light;
   }
@@ -187,7 +200,7 @@
     font-weight: 600;
     font-size: 0.94rem;
     cursor: pointer;
-    transition: background 0.4s var(--ease-spring), color 0.4s var(--ease-spring), transform 0.3s var(--ease-spring);
+    transition: background var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out), transform var(--dur-instant) var(--ease-out);
   }
   .mode-btn:active { transform: scale(0.97); }
   .mode-btn[aria-selected="true"] {
@@ -236,7 +249,7 @@
     justify-content: center;
     cursor: pointer;
     white-space: nowrap;
-    transition: background 0.4s var(--ease-spring), color 0.4s var(--ease-spring), transform 0.3s var(--ease-spring);
+    transition: background var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out), transform var(--dur-instant) var(--ease-out);
   }
   .tab-btn:active { transform: scale(0.96); }
   .tab-btn[aria-selected="true"] {
@@ -342,7 +355,7 @@
     border-radius: var(--radius-lg);
     box-shadow: 0 1px 2px oklch(0.3 0.05 265 / 0.04), 0 10px 24px -12px oklch(0.3 0.05 265 / 0.14);
     overflow: hidden;
-    transition: box-shadow 0.4s var(--ease-spring);
+    transition: box-shadow var(--dur-base) var(--ease-out);
   }
   .block[data-status="pending"] .card,
   .card.is-pending {
@@ -364,7 +377,7 @@
     text-align: left;
     cursor: pointer;
     min-height: 44px;
-    transition: transform 0.3s var(--ease-spring);
+    transition: transform var(--dur-instant) var(--ease-out);
   }
   .card-head:active { transform: scale(0.99); }
   .card-head:focus-visible {
@@ -439,23 +452,28 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.3s var(--ease-spring), background 0.3s var(--ease-spring);
+    transition: transform var(--dur-base) var(--ease-in-out), background var(--dur-fast) var(--ease-out);
   }
   .card-head:hover .chevron-wrap { background: color-mix(in oklch, var(--accent) 16%, var(--bg-elevated)); }
   .chevron {
     width: 16px;
     height: 16px;
     color: var(--text-dim);
-    transition: transform 0.4s var(--ease-spring);
+    transition: transform var(--dur-base) var(--ease-in-out);
   }
   .card[data-open="true"] .chevron { transform: rotate(180deg); }
 
   .card-body-wrap {
     display: grid;
     grid-template-rows: 0fr;
-    transition: grid-template-rows 0.45s var(--ease-spring);
+    /* cierre: rápido, sin demora — el contenido no debe quedar visible mientras la fila ya colapsó */
+    transition: grid-template-rows var(--dur-layout-out) var(--ease-in);
   }
-  .card[data-open="true"] .card-body-wrap { grid-template-rows: 1fr; }
+  .card[data-open="true"] .card-body-wrap {
+    grid-template-rows: 1fr;
+    /* apertura: un poco más lenta que el cierre, curva de salida confiada */
+    transition: grid-template-rows var(--dur-layout-in) var(--ease-out);
+  }
   .card-body-inner { overflow: hidden; }
   .card-body {
     padding: 0 var(--space-lg) var(--space-lg);
@@ -467,9 +485,16 @@
     padding-top: var(--space-md);
     opacity: 0;
     transform: translateY(-4px);
-    transition: opacity 0.35s var(--ease-spring) 0.08s, transform 0.35s var(--ease-spring) 0.08s;
+    /* cierre: fade rápido sin demora (antes tenía la misma demora que abrir — se veía el texto
+       colgado mientras la fila ya se había encogido) */
+    transition: opacity var(--dur-fast) var(--ease-in), transform var(--dur-fast) var(--ease-in);
   }
-  .card[data-open="true"] .card-body { opacity: 1; transform: translateY(0); }
+  .card[data-open="true"] .card-body {
+    opacity: 1;
+    transform: translateY(0);
+    /* apertura: espera a que la fila abra un poco antes de revelar el texto */
+    transition: opacity var(--dur-layout-in) var(--ease-out) 90ms, transform var(--dur-layout-in) var(--ease-out) 90ms;
+  }
   .card-body p { margin: 0 0 var(--space-sm); }
   .card-body p:last-child { margin-bottom: 0; }
 
@@ -633,7 +658,7 @@
     box-shadow: 0 1px 2px oklch(0.3 0.05 265 / 0.04);
     cursor: pointer;
     min-height: 44px;
-    transition: background 0.3s var(--ease-spring), box-shadow 0.3s var(--ease-spring);
+    transition: background var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out), transform var(--dur-instant) var(--ease-out);
   }
   .check-row:active { transform: scale(0.995); }
   .check-box {
@@ -647,7 +672,7 @@
     align-items: center;
     justify-content: center;
     color: transparent;
-    transition: background 0.3s var(--ease-spring), border-color 0.3s var(--ease-spring), color 0.2s var(--ease-spring), transform 0.3s var(--ease-spring);
+    transition: background var(--dur-base) var(--ease-in-out), border-color var(--dur-base) var(--ease-in-out), color var(--dur-fast) var(--ease-out), transform var(--dur-base) var(--ease-in-out);
   }
   .check-row.is-checked .check-box {
     background: var(--confirmed);
@@ -655,7 +680,12 @@
     color: var(--surface);
     transform: scale(1.05);
   }
-  .check-label { font-size: 0.92rem; line-height: 1.4; transition: color 0.3s ease, opacity 0.3s ease; }
+  .check-box svg {
+    transform: scale(0.4);
+    transition: transform var(--dur-base) var(--ease-out);
+  }
+  .check-row.is-checked .check-box svg { transform: scale(1); }
+  .check-label { font-size: 0.92rem; line-height: 1.4; transition: color var(--dur-fast) var(--ease-out), opacity var(--dur-fast) var(--ease-out); }
   .check-row.is-checked .check-label { color: var(--text-faint); text-decoration: line-through; opacity: 0.7; }
 
   .ropa-columns { display: flex; flex-direction: column; gap: var(--space-2xl); }
@@ -683,7 +713,7 @@
     background: var(--bg-elevated);
     border: 1px solid var(--hairline);
     border-radius: var(--radius-sm);
-    transition: background 0.3s var(--ease-spring), transform 0.3s var(--ease-spring);
+    transition: background var(--dur-fast) var(--ease-out), transform var(--dur-instant) var(--ease-out);
   }
   .contact-link:active { transform: scale(0.97); }
   .contact-link.is-primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
@@ -700,13 +730,13 @@
     to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
   }
   .day-panel[data-active="true"] > * {
-    animation: riseIn 0.65s var(--ease-spring) both;
+    animation: riseIn 0.65s var(--ease-entrance) both;
   }
   .day-panel[data-active="true"] > .day-heading { animation-delay: 0s; }
   .day-panel[data-active="true"] > .day-note { animation-delay: 0.04s; }
   .day-panel[data-active="true"] .timeline > *,
   .day-panel[data-active="true"] .checklist > * {
-    animation: riseIn 0.55s var(--ease-spring) both;
+    animation: riseIn 0.55s var(--ease-entrance) both;
   }
   .day-panel[data-active="true"] .timeline > *:nth-child(1),
   .day-panel[data-active="true"] .checklist > *:nth-child(1) { animation-delay: 0.05s; }
@@ -720,7 +750,7 @@
   .day-panel[data-active="true"] .checklist > *:nth-child(5) { animation-delay: 0.25s; }
   .day-panel[data-active="true"] .timeline > *:nth-child(n+6),
   .day-panel[data-active="true"] .checklist > *:nth-child(n+6) { animation-delay: 0.3s; }
-  .day-panel[data-active="true"] .summary-grid > * { animation: riseIn 0.55s var(--ease-spring) both; }
+  .day-panel[data-active="true"] .summary-grid > * { animation: riseIn 0.55s var(--ease-entrance) both; }
   .day-panel[data-active="true"] .summary-grid > *:nth-child(1) { animation-delay: 0.04s; }
   .day-panel[data-active="true"] .summary-grid > *:nth-child(2) { animation-delay: 0.09s; }
   .day-panel[data-active="true"] .summary-grid > *:nth-child(3) { animation-delay: 0.14s; }
@@ -734,13 +764,13 @@
 
     .timeline > .block {
       opacity: 0;
-      animation: flapReveal 0.65s var(--ease-spring) both;
+      animation: flapReveal 0.65s var(--ease-entrance) both;
       animation-timeline: view();
       animation-range: entry 0% entry 42%;
     }
     .timeline > .block .block-time {
       transform-origin: 50% 100%;
-      animation: flapDigit 0.5s var(--ease-spring) both;
+      animation: flapDigit 0.5s var(--ease-entrance) both;
       animation-timeline: view();
       animation-range: entry 6% entry 38%;
     }
@@ -755,7 +785,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .card-body-wrap, .card-body, .chevron, .tab-btn, .card-head, .mode-btn, .check-row, .check-box,
+    .card-body-wrap, .card-body, .chevron, .tab-btn, .card-head, .mode-btn, .check-row, .check-box, .check-box svg, .contact-link,
     .day-panel[data-active="true"] > *, .day-panel[data-active="true"] .timeline > *,
     .day-panel[data-active="true"] .checklist > *, .day-panel[data-active="true"] .summary-grid > *,
     .timeline > .block, .timeline > .block .block-time {
