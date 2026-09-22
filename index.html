@@ -397,14 +397,18 @@
      progreso (relleno). Vacío = solo el aro de color. A medio llenar =
      "en curso". Sólido = "hecho". El scroll nunca lo llena — solo tocar
      el botón de progreso en la tarjeta. El relleno usa --progress-frac
-     (arriba) para poder animarse de verdad, no saltar de golpe. */
+     (arriba) para poder animarse de verdad, no saltar de golpe.
+     El "vacío" del conic-gradient es --bg (el fondo de la página, no
+     transparent) — el dot vive sobre el spine, y con transparent la
+     línea del spine se veía pasar por dentro del aro hueco, partiendo
+     la tira en vez de una tira pareja con agujeros limpios. */
   .block-dot {
     width: 12px;
     height: 12px;
     border-radius: 50%;
     border: 2px solid var(--cat-glow);
     --progress-frac: 0%;
-    background: conic-gradient(var(--cat-glow) var(--progress-frac), transparent var(--progress-frac));
+    background: conic-gradient(var(--cat-glow) var(--progress-frac), var(--bg) var(--progress-frac));
     flex: 0 0 auto;
     transition: --progress-frac var(--dur-base) var(--ease-in-out), box-shadow var(--dur-base) var(--ease-in-out);
   }
@@ -442,16 +446,20 @@
     overflow: hidden;
     transform: perspective(1000px) rotateX(1.5deg);
     transform-origin: 50% 0%;
-    transition: box-shadow var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+    transition: box-shadow var(--dur-base) var(--ease-out), transform var(--dur-settle) var(--ease-out);
   }
   .card[data-open="true"] {
     transform: perspective(1000px) rotateX(0deg);
   }
-  @supports selector(:has(a)) {
-    .card:has(.card-head:active) {
-      transform: perspective(1000px) rotateX(0deg) scale(0.97);
-      transition: transform var(--dur-instant) var(--ease-out);
-    }
+  /* .is-pressed la pone/quita JS (pointerdown/up/cancel/leave), no :active —
+     en iOS Safari :active se puede quedar "pegado" en elementos no nativos
+     (role=button) si no hay un listener de touch de verdad en el elemento;
+     con JS el estado se limpia siempre, sin depender de que el navegador
+     decida cuándo se considera "soltado". También reemplaza el viejo
+     :has(.card-head:active), que dependía del mismo :active poco fiable. */
+  .card.is-pressed {
+    transform: perspective(1000px) rotateX(0deg) scale(0.97);
+    transition: transform var(--dur-instant) var(--ease-out);
   }
   .block[data-status="pending"] .card,
   .card.is-pending {
@@ -557,7 +565,7 @@
     min-height: 44px;
     transition: transform var(--dur-settle) var(--ease-out);
   }
-  .card-head:active {
+  .card.is-pressed .card-head {
     transform: scale(0.97);
     transition: transform var(--dur-instant) var(--ease-out);
   }
@@ -584,12 +592,16 @@
     padding: 5px 12px;
     line-height: 1.1;
     white-space: nowrap;
-    transition: box-shadow var(--dur-instant) var(--ease-out);
+    transition: box-shadow var(--dur-settle) var(--ease-out);
   }
   /* Al tocar la tarjeta, la hora y el tipo se resaltan con el color de
-     categoría — el mismo tap que expande hace de "spotlight". */
-  .card-head:active .block-time {
-    box-shadow: 0 0 0 3px color-mix(in oklch, var(--cat-glow) 40%, transparent);
+     categoría — mismo trigger (.is-pressed) y misma pareja de tiempos
+     que el zoom de la tarjeta (--dur-instant al bajar, --dur-settle al
+     soltar) para que las tres cosas (tarjeta, hora, tipo) se sientan
+     como un solo gesto, no tres animaciones sueltas. */
+  .card.is-pressed .block-time {
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--cat-glow) 32%, transparent);
+    transition: box-shadow var(--dur-instant) var(--ease-out);
   }
   .cat-label {
     font-size: 0.68rem;
@@ -598,10 +610,11 @@
     letter-spacing: 0.05em;
     color: var(--cat-glow);
     white-space: nowrap;
-    transition: text-shadow var(--dur-instant) var(--ease-out);
+    transition: text-shadow var(--dur-settle) var(--ease-out);
   }
-  .card-head:active .cat-label {
-    text-shadow: 0 0 10px color-mix(in oklch, var(--cat-glow) 65%, transparent);
+  .card.is-pressed .cat-label {
+    text-shadow: 0 0 8px color-mix(in oklch, var(--cat-glow) 55%, transparent);
+    transition: text-shadow var(--dur-instant) var(--ease-out);
   }
   .card-head-spacer { flex: 1 1 auto; }
 
@@ -1033,7 +1046,7 @@
 
   @media (prefers-reduced-motion: reduce) {
     .card, .card-body-wrap, .card-body, .chevron, .tab-btn, .card-head, .mode-btn, .check-row, .check-box, .check-box svg, .contact-link,
-    .progress-btn, .progress-ring, .progress-check, .block-dot, .confetti-piece,
+    .progress-btn, .progress-ring, .progress-check, .block-dot, .confetti-piece, .cat-label,
     .day-panel[data-active="true"] > *, .day-panel[data-active="true"] .timeline > *,
     .day-panel[data-active="true"] .checklist > *, .day-panel[data-active="true"] .summary-grid > *,
     .timeline > .block, .timeline > .block .block-time {
@@ -1785,8 +1798,42 @@ function bindExpandDelegate(container) {
     const head = event.target.closest(".card-head");
     if (!head || !container.contains(head)) return;
     event.preventDefault();
+    if (!event.repeat) setCardPressed(head, true);
     toggle(head);
   });
+  container.addEventListener("keyup", function (event) {
+    if (event.key !== " " && event.key !== "Enter") return;
+    const head = event.target.closest(".card-head");
+    if (!head || !container.contains(head)) return;
+    setCardPressed(head, false);
+  });
+
+  // Estado de "presionado" vía pointer events, no :active — en iOS Safari
+  // :active puede quedarse pegado en elementos no nativos (role=button)
+  // tras soltar el toque, dejando la tarjeta atorada en su look de
+  // presionada. setPointerCapture ata el pointerId al propio card-head
+  // en cuanto baja el dedo, así que pointerup/pointercancel SIEMPRE le
+  // llegan a él sin importar a dónde se mueva el dedo mientras está
+  // abajo — se limpia garantizado, no depende de bordes/leave events.
+  container.addEventListener("pointerdown", function (event) {
+    if (event.target.closest(".progress-btn")) return;
+    const head = event.target.closest(".card-head");
+    if (!head || !container.contains(head)) return;
+    setCardPressed(head, true);
+    try { head.setPointerCapture(event.pointerId); } catch (e) { /* no soportado — pointerup abajo sigue funcionando en el caso normal */ }
+  });
+  ["pointerup", "pointercancel"].forEach(function (evtName) {
+    container.addEventListener(evtName, function (event) {
+      const head = event.target.closest(".card-head");
+      if (!head || !container.contains(head)) return;
+      setCardPressed(head, false);
+    });
+  });
+}
+
+function setCardPressed(head, pressed) {
+  const card = head.closest(".card");
+  if (card) card.classList.toggle("is-pressed", pressed);
 }
 
 // Delegación del botón de progreso — cicla nada→en curso→hecho→nada y
