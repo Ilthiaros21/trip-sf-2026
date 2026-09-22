@@ -310,7 +310,7 @@
   #trip-app .spine-track {
     position: absolute;
     inset: 0;
-    background: var(--border);
+    background: color-mix(in oklch, var(--text) 22%, transparent);
     border-radius: inherit;
   }
   #trip-app .spine-fill {
@@ -323,7 +323,7 @@
     transition: --reveal 60ms linear;
   }
   @supports (backdrop-filter: blur(1px)) {
-    #trip-app .spine-fill { backdrop-filter: blur(2px) saturate(180%); }
+    #trip-app .spine-fill { backdrop-filter: blur(1px) saturate(180%); }
   }
   #trip-app .spine-fill::before {
     content: "";
@@ -903,12 +903,10 @@
   #trip-app .day-panel[data-active="true"] .summary-grid > *:nth-child(n+5) { animation-delay: 0.24s; }
 
   @supports (animation-timeline: view()) {
-    #trip-app .day-panel[data-active="true"] .timeline > * { animation: none !important; }
-
-    #trip-app .timeline > .block {
-      animation: flapReveal 0.65s var(--ease-entrance) both;
-      animation-timeline: view();
-      animation-range: entry 0% entry 42%;
+    #trip-app .day-panel[data-active="true"] .timeline > .block {
+      animation: riseIn 0.55s var(--ease-entrance) both, flapReveal 0.65s var(--ease-entrance) both;
+      animation-timeline: auto, view();
+      animation-range: normal, entry 0% entry 42%;
     }
     #trip-app .timeline > .block .block-time {
       transform-origin: 50% 100%;

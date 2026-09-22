@@ -353,10 +353,15 @@
     pointer-events: none;
     z-index: 0;
   }
+  /* --border (16% alpha) es casi invisible contra el fondo pastel — al
+     lado del relleno (color sólido, 100% opaco) se leía como una línea
+     mucho más delgada/apagada, no como el mismo grosor sin llenar
+     todavía. Con más opacidad, la tira se ve pareja de punta a punta:
+     mismo ancho, solo cambia el color. */
   .spine-track {
     position: absolute;
     inset: 0;
-    background: var(--border);
+    background: color-mix(in oklch, var(--text) 22%, transparent);
     border-radius: inherit;
   }
   .spine-fill {
@@ -369,7 +374,9 @@
     transition: --reveal 60ms linear;
   }
   @supports (backdrop-filter: blur(1px)) {
-    .spine-fill { backdrop-filter: blur(2px) saturate(180%); }
+    /* blur bajado de 2px a 1px — en una tira de 7px de ancho, 2px de blur
+       le comía visualmente el borde y se veía más angosta que el track. */
+    .spine-fill { backdrop-filter: blur(1px) saturate(180%); }
   }
   .spine-fill::before {
     content: "";
@@ -1012,21 +1019,26 @@
   .day-panel[data-active="true"] .summary-grid > *:nth-child(4) { animation-delay: 0.19s; }
   .day-panel[data-active="true"] .summary-grid > *:nth-child(n+5) { animation-delay: 0.24s; }
 
-  /* Flight-board scroll reveal — por tarjeta, activado por scroll real.
-     Firefox (sin animation-timeline: view()) usa el stagger de arriba en su lugar. */
+  /* Flight-board scroll reveal — SE SUMA al riseIn de arriba, ya no lo
+     reemplaza. riseIn es time-based: siempre resuelve la entrada al
+     cambiar de día, incluso para la primera tarjeta (ya visible sin
+     haber scrolleado nada, que es el caso normal al cambiar de pestaña).
+     flapReveal es scroll-based, un plus para tarjetas que entran a la
+     vista por primera vez más abajo en un día largo. Antes esto apagaba
+     riseIn por completo con !important en cualquier navegador con
+     animation-timeline: view(), y como animation-timeline:view() no
+     tiene nada que "activar" en una tarjeta que ya está en pantalla al
+     momento de cambiar de día (no hubo scroll), esas tarjetas no
+     animaban NADA — exactamente lo reportado ("aparecen de la nada").
+     Dos animaciones separadas por coma en una sola regla, cada una con
+     su propio timeline (auto = reloj normal, view() = scroll) — el
+     @supports ya garantiza que el navegador entiende view() antes de
+     escribir la lista, así que parsea bien. */
   @supports (animation-timeline: view()) {
-    .day-panel[data-active="true"] .timeline > * { animation: none !important; }
-
-    .timeline > .block {
-      /* Sin opacity:0 estático aquí a propósito: si el navegador nunca
-         llega a resolver el animation-timeline (current time no resuelto),
-         la animación simplemente no aplica y el elemento cae en su estilo
-         normal — visible. Con opacity:0 fijo en la regla base, ese mismo
-         caso deja la tarjeta invisible para siempre, sin manera de
-         recuperarse. El fade-in real lo pone el propio keyframe (from). */
-      animation: flapReveal 0.65s var(--ease-entrance) both;
-      animation-timeline: view();
-      animation-range: entry 0% entry 42%;
+    .day-panel[data-active="true"] .timeline > .block {
+      animation: riseIn 0.55s var(--ease-entrance) both, flapReveal 0.65s var(--ease-entrance) both;
+      animation-timeline: auto, view();
+      animation-range: normal, entry 0% entry 42%;
     }
     .timeline > .block .block-time {
       transform-origin: 50% 100%;
